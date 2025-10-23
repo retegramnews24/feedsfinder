@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Feeds Finder - Player Sempre Visibile</title>
+    <title>Feeds Finder</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
@@ -87,112 +87,60 @@
             object-fit: contain;
         }
         
-        /* Controlli sempre visibili */
-        .player-controls {
+        /* Player ultra-semplice */
+        .simple-player-controls {
             display: flex;
             gap: 4px;
             margin-top: 6px;
             width: 100%;
             flex-wrap: nowrap;
-            background: rgba(20, 20, 30, 0.9);
+            background: rgba(20, 20, 35, 0.95);
             padding: 8px;
             border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
         
-        .control-btn {
+        .simple-control-btn {
             flex: 1;
-            padding: 7px;
+            padding: 8px 4px;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             color: white;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            font-size: 0.8rem;
             height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 3px;
+            gap: 4px;
             min-width: 0;
         }
         
-        .control-btn.play { background: #2a8c85; }
-        .control-btn.play:hover { background: #237a74; }
-        .control-btn.pause { background: #d4b15c; }
-        .control-btn.pause:hover { background: #c4a14c; }
-        .control-btn.stop { background: #c55c5c; }
-        .control-btn.stop:hover { background: #b35050; }
-        
-        /* Timeline sempre visibile */
-        .timeline-container {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 6px;
-            background: rgba(20, 20, 30, 0.9);
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .simple-control-btn.play { 
+            background: #2a8c85; 
+            border: 1px solid #3d9c95;
         }
+        .simple-control-btn.play:hover { background: #237a74; }
         
-        .time-display {
-            font-size: 0.8rem;
-            color: #d4b15c;
-            font-family: monospace;
-            min-width: 100px;
-            text-align: center;
+        .simple-control-btn.pause { 
+            background: #d4b15c; 
+            border: 1px solid #e4c16c;
         }
+        .simple-control-btn.pause:hover { background: #c4a14c; }
         
-        .progress-bar {
-            flex: 1;
-            height: 6px;
-            background: rgba(50, 50, 65, 0.9);
-            border-radius: 3px;
-            overflow: hidden;
-            position: relative;
-            cursor: pointer;
+        .simple-control-btn.stop { 
+            background: #c55c5c; 
+            border: 1px solid #d56c6c;
         }
+        .simple-control-btn.stop:hover { background: #b35050; }
         
-        .progress-filled {
-            height: 100%;
-            background: #2a8c85;
-            border-radius: 3px;
-            width: 0%;
-            transition: width 0.1s linear;
+        .simple-control-btn.fullscreen { 
+            background: #8a6bc9; 
+            border: 1px solid #9a7bd9;
         }
-        
-        .volume-control {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            min-width: 120px;
-        }
-        
-        .volume-slider {
-            flex: 1;
-            height: 4px;
-            background: rgba(50, 50, 65, 0.9);
-            border-radius: 2px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-        
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #d4b15c;
-            cursor: pointer;
-        }
-        
-        .volume-icon {
-            color: #d4b15c;
-            font-size: 1rem;
-        }
+        .simple-control-btn.fullscreen:hover { background: #7a5bb9; }
         
         .search-box {
             background: rgba(30, 30, 45, 0.8);
@@ -576,22 +524,13 @@
                 min-width: 120px;
             }
             
-            .player-controls, .favorites-controls, .result-actions {
+            .simple-player-controls, .favorites-controls, .result-actions {
                 flex-wrap: nowrap;
             }
             
-            .control-btn, .favorites-btn, .action-btn {
+            .simple-control-btn, .favorites-btn, .action-btn {
                 min-width: 0;
                 flex: 1;
-            }
-            
-            .volume-control {
-                min-width: 100px;
-            }
-            
-            .time-display {
-                min-width: 80px;
-                font-size: 0.75rem;
             }
             
             .results-container {
@@ -665,7 +604,6 @@
             <div class="video-container">
                 <video 
                     id="videoPlayer"
-                    controls
                     preload="auto"
                     playsinline
                     webkit-playsinline
@@ -673,25 +611,12 @@
                 </video>
             </div>
             
-            <!-- Timeline sempre visibile -->
-            <div class="timeline-container">
-                <div class="time-display" id="currentTime">0:00</div>
-                <div class="progress-bar" id="progressBar">
-                    <div class="progress-filled" id="progressFilled"></div>
-                </div>
-                <div class="time-display" id="durationTime">0:00</div>
-                
-                <div class="volume-control">
-                    <i class="fas fa-volume-up volume-icon" id="volumeIcon"></i>
-                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="1">
-                </div>
-            </div>
-            
-            <!-- Controlli sempre visibili -->
-            <div class="player-controls">
-                <button class="control-btn play" id="playBtn" title="Play"><i class="fas fa-play"></i> Play</button>
-                <button class="control-btn pause" id="pauseBtn" title="Pausa"><i class="fas fa-pause"></i> Pausa</button>
-                <button class="control-btn stop" id="stopBtn" title="Stop"><i class="fas fa-stop"></i> Stop</button>
+            <!-- Controlli ultra-semplice sempre visibili -->
+            <div class="simple-player-controls">
+                <button class="simple-control-btn play" id="playBtn" title="Play"><i class="fas fa-play"></i></button>
+                <button class="simple-control-btn pause" id="pauseBtn" title="Pausa"><i class="fas fa-pause"></i></button>
+                <button class="simple-control-btn stop" id="stopBtn" title="Stop"><i class="fas fa-stop"></i></button>
+                <button class="simple-control-btn fullscreen" id="fullscreenBtn" title="Schermo intero"><i class="fas fa-expand"></i></button>
             </div>
         </div>
         
@@ -755,6 +680,7 @@
         const playBtn = document.getElementById('playBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const stopBtn = document.getElementById('stopBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
         const pagination = document.getElementById('pagination');
         const searchTab = document.getElementById('searchTab');
         const favoritesTab = document.getElementById('favoritesTab');
@@ -768,14 +694,6 @@
         const addCustomBtn = document.getElementById('addCustomBtn');
         const searchBox = document.getElementById('searchBox');
         
-        // Elementi timeline
-        const currentTimeDisplay = document.getElementById('currentTime');
-        const durationTimeDisplay = document.getElementById('durationTime');
-        const progressBar = document.getElementById('progressBar');
-        const progressFilled = document.getElementById('progressFilled');
-        const volumeSlider = document.getElementById('volumeSlider');
-        const volumeIcon = document.getElementById('volumeIcon');
-        
         // Variabili globali
         let currentResults = [];
         let currentPage = 1;
@@ -784,7 +702,6 @@
         let favorites = JSON.parse(localStorage.getItem('m3u8_favorites')) || [];
         let currentView = 'search';
         let currentChannelName = '';
-        let isSeeking = false;
         
         // Database di canali
         const CHANNEL_DATABASE = [
@@ -827,26 +744,28 @@
             }, 3000);
         }
 
-        // Formatta il tempo in minuti:secondi
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        }
-
-        // Aggiorna la timeline
-        function updateTimeline() {
-            if (!videoPlayer.duration || isSeeking) return;
-            
-            const currentTime = videoPlayer.currentTime;
-            const duration = videoPlayer.duration;
-            const progressPercent = (currentTime / duration) * 100;
-            
-            progressFilled.style.width = `${progressPercent}%`;
-            currentTimeDisplay.textContent = formatTime(currentTime);
-            
-            if (durationTimeDisplay.textContent === '0:00' && duration) {
-                durationTimeDisplay.textContent = formatTime(duration);
+        // Gestione fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                if (videoPlayer.requestFullscreen) {
+                    videoPlayer.requestFullscreen();
+                } else if (videoPlayer.webkitRequestFullscreen) {
+                    videoPlayer.webkitRequestFullscreen();
+                } else if (videoPlayer.mozRequestFullScreen) {
+                    videoPlayer.mozRequestFullScreen();
+                } else if (videoPlayer.msRequestFullscreen) {
+                    videoPlayer.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
             }
         }
 
@@ -879,38 +798,8 @@
                 showToast('Riproduzione fermata', 'info');
             });
 
-            // Gestori timeline
-            videoPlayer.addEventListener('timeupdate', updateTimeline);
-            
-            videoPlayer.addEventListener('loadedmetadata', function() {
-                durationTimeDisplay.textContent = formatTime(videoPlayer.duration);
-            });
-            
-            // Cerca quando si clicca sulla barra di progresso
-            progressBar.addEventListener('click', function(e) {
-                if (!videoPlayer.duration) return;
-                
-                const rect = progressBar.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                videoPlayer.currentTime = percent * videoPlayer.duration;
-            });
-            
-            // Controllo volume
-            volumeSlider.addEventListener('input', function() {
-                videoPlayer.volume = volumeSlider.value;
-                
-                // Aggiorna icona volume
-                if (videoPlayer.volume == 0) {
-                    volumeIcon.className = 'fas fa-volume-mute volume-icon';
-                } else if (videoPlayer.volume < 0.5) {
-                    volumeIcon.className = 'fas fa-volume-down volume-icon';
-                } else {
-                    volumeIcon.className = 'fas fa-volume-up volume-icon';
-                }
-            });
-            
-            // Inizializza volume
-            videoPlayer.volume = volumeSlider.value;
+            // Gestore fullscreen
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
 
             // Gestori tab
             searchTab.addEventListener('click', () => switchView('search'));
@@ -1287,12 +1176,7 @@
                 hls.destroy();
             }
             
-            // Reset timeline
-            progressFilled.style.width = '0%';
-            currentTimeDisplay.textContent = '0:00';
-            durationTimeDisplay.textContent = '0:00';
-            
-            // Usa un approccio più semplice e compatibile
+            // Usa un approccio ultra-semplice
             if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
                 // Browser nativo supporta HLS (Safari, Chrome su iOS)
                 videoPlayer.src = url;
