@@ -4,893 +4,681 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feeds Finder</title>
-    <meta name="theme-color" content="#6366f1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #f43f5e;
-            --dark: #0f172a;
-            --dark-light: #1e293b;
-            --light: #f8fafc;
-            --gray: #64748b;
-            --success: #10b981;
-            --warning: #f59e0b;
-        }
-
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: var(--dark);
-            color: var(--light);
-            line-height: 1.6;
-            overflow-x: hidden;
-            user-select: none;
-            -webkit-user-select: none;
-            padding: 0;
+            background: linear-gradient(135deg, #1a1f3d, #3d1a1a, #2a240f);
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding: 12px;
         }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            padding: 0.5rem 0.75rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            min-height: 50px;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 100%;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .logo i {
-            font-size: 1rem;
-        }
-
-        .nav-tabs {
-            display: flex;
-            gap: 0.2rem;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50px;
-            padding: 0.15rem;
-        }
-
-        .nav-tab {
-            padding: 0.35rem 0.6rem;
-            border-radius: 50px;
-            border: none;
-            background: transparent;
-            color: var(--light);
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: auto;
-        }
-
-        .nav-tab.active {
-            background: var(--light);
-            color: var(--primary);
-        }
-
-        .video-section {
-            position: sticky;
-            top: 50px;
-            background: #000;
-            width: 100%;
-            z-index: 90;
-        }
-
-        .video-container {
-            width: 100%;
-            position: relative;
-            background: #000;
-            touch-action: pan-y pinch-zoom;
-        }
-
-        #video-player {
-            width: 100%;
-            height: 200px;
-            display: block;
-            background: #000;
-        }
-
-        #video-player::-webkit-media-controls {
-            display: none !important;
-        }
-
-        .player-placeholder {
-            width: 100%;
-            height: 200px;
-            background: #000;
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            gap: 12px;
+        }
+        
+        .fixed-top {
+            position: sticky;
+            top: 12px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .player-section {
+            background: rgba(30, 30, 45, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .player-header {
+            display: flex;
             align-items: center;
-            color: var(--gray);
+            justify-content: space-between;
+            margin-bottom: 18px;
         }
-
-        .custom-controls {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
-            padding: 0.6rem;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 10;
+        
+        .player-title {
+            font-size: 1.4rem;
+            color: #ffd166;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-
-        .video-container.touch-active .custom-controls,
-        .video-container:hover .custom-controls {
-            opacity: 1;
-        }
-
-        .progress-container {
+        
+        .video-container {
             width: 100%;
-            height: 3px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 2px;
-            margin-bottom: 0.6rem;
-            cursor: pointer;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 18px;
             position: relative;
+            aspect-ratio: 16/9;
         }
-
-        .progress-bar {
+        
+        #videoPlayer {
+            width: 100%;
             height: 100%;
-            background: var(--primary);
-            border-radius: 2px;
-            width: 0%;
-            transition: width 0.1s ease;
+            display: block;
+            object-fit: contain;
         }
-
-        .control-buttons {
+        
+        .player-controls {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            gap: 12px;
+            margin-top: 15px;
         }
-
-        .control-left, .control-right {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-
+        
         .control-btn {
-            background: none;
-            border: none;
-            color: var(--light);
-            font-size: 0.9rem;
-            cursor: pointer;
-            padding: 0.35rem;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            touch-action: manipulation;
-        }
-
-        .control-btn:active {
-            transform: scale(0.95);
-            background: rgba(255,255,255,0.1);
-        }
-
-        .control-btn.stop {
-            color: var(--secondary);
-        }
-
-        .content {
-            padding: 0.6rem;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 0.3rem;
-            margin: 0.5rem 0;
-            flex-wrap: nowrap;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .compact-btn {
             flex: 1;
-            background: var(--dark-light);
-            color: white;
+            padding: 16px;
             border: none;
-            padding: 0.5rem 0.4rem;
-            border-radius: 8px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 0.7rem;
+            transition: all 0.3s ease;
+            font-size: 1.15rem;
+            height: 54px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.3rem;
+            gap: 8px;
+        }
+        
+        /* Schema colori verticale - Colonna 1 */
+        .control-btn.play {
+            background: #2a8c85; /* Verde acqua */
+        }
+        
+        .control-btn.play:hover {
+            background: #237a74;
+        }
+        
+        .control-btn.pause {
+            background: #d4b15c; /* Oro */
+        }
+        
+        .control-btn.pause:hover {
+            background: #c4a14c;
+        }
+        
+        .control-btn.stop {
+            background: #c55c5c; /* Rosso */
+        }
+        
+        .control-btn.stop:hover {
+            background: #b35050;
+        }
+        
+        .current-stream {
+            background: rgba(20, 20, 30, 0.7);
+            padding: 12px;
+            border-radius: 8px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 80px;
+            overflow-y: auto;
+            color: #c8c8c8;
+        }
+        
+        .search-box {
+            background: rgba(30, 30, 45, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 280px;
+            padding: 16px 18px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(50, 50, 65, 0.9);
+            font-size: 1.25rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+            color: #f0f0f0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        
+        .search-input::placeholder {
+            color: #999;
+        }
+        
+        .search-btn {
+            padding: 16px 28px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: bold;
+            cursor: pointer;
             transition: all 0.3s ease;
-            min-height: 36px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-
-        .compact-btn.export {
-            background: var(--success);
+        
+        /* Schema colori verticale - Colonna 2 */
+        .search-btn {
+            background: #8a6bc9; /* Viola */
         }
-
-        .compact-btn.import {
-            background: var(--primary);
+        
+        .search-btn:hover {
+            background: #7a5bb9;
+            transform: translateY(-2px);
         }
-
-        .compact-btn.custom {
-            background: var(--secondary);
-        }
-
-        .compact-btn.random {
-            background: var(--warning);
-        }
-
-        .compact-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-
-        .compact-btn:active {
+        
+        .search-btn:active {
             transform: translateY(0);
         }
 
-        .compact-btn i {
-            font-size: 0.75rem;
-            flex-shrink: 0;
+        /* Tabs per Preferiti */
+        .tabs-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
 
-        .compact-btn span {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .search-container {
-            margin-bottom: 0.8rem;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 0.6rem 2.5rem 0.6rem 0.8rem;
-            background: var(--dark-light);
-            border: 2px solid transparent;
-            border-radius: 8px;
-            color: var(--light);
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 0.8rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-            font-size: 0.8rem;
-        }
-
-        .country-group {
-            margin-bottom: 1rem;
-        }
-
-        .country-header {
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            padding: 0.5rem 0.8rem;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
+        .tab {
+            padding: 12px 24px;
+            background: rgba(40, 40, 55, 0.8);
+            border: none;
+            border-radius: 10px 10px 0 0;
+            color: #d0d0d0;
             cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .tab.active {
+            background: rgba(197, 92, 92, 0.35);
+            border-bottom: 3px solid #c55c5c;
+            color: #ffd166;
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(60, 60, 75, 0.8);
+        }
+
+        /* Sezione Preferiti - Controlli allineati come player controls */
+        .favorites-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .favorites-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.15rem;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Schema colori verticale - Colonna 3 */
+        .favorites-btn.import {
+            background: #2a8c85; /* Verde acqua */
+        }
+
+        .favorites-btn.import:hover {
+            background: #237a74;
+        }
+
+        .favorites-btn.export {
+            background: #d4b15c; /* Oro */
+        }
+
+        .favorites-btn.export:hover {
+            background: #c4a14c;
+        }
+
+        .favorites-btn.delete {
+            background: #c55c5c; /* Rosso */
+        }
+
+        .favorites-btn.delete:hover {
+            background: #b35050;
+        }
+        
+        .results-section {
+            background: rgba(30, 30, 45, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            flex: 1;
+            min-height: 550px;
+        }
+        
+        .results-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s ease;
+            margin-bottom: 20px;
         }
-
-        .country-header:hover {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        
+        .results-title {
+            font-size: 1.4rem;
+            color: #ffd166;
         }
-
-        .country-name {
-            font-weight: 600;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        
+        .results-count {
+            background: rgba(50, 50, 65, 0.9);
+            padding: 8px 15px;
+            border-radius: 18px;
+            font-size: 1.15rem;
+            color: #d0d0d0;
         }
-
-        .country-flag {
-            font-size: 1rem;
-        }
-
-        .channel-count {
-            background: rgba(255,255,255,0.2);
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.7rem;
-        }
-
-        .channel-list {
+        
+        .results-container {
             display: grid;
-            gap: 0.4rem;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+            gap: 12px;
         }
-
-        .channel-card {
-            background: var(--dark-light);
-            border-radius: 8px;
-            padding: 0.5rem;
+        
+        .result-card {
+            background: rgba(35, 35, 50, 0.9);
+            border-radius: 10px;
+            padding: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .result-card:hover {
+            background: rgba(45, 45, 60, 1);
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+        
+        .result-card.active {
+            border-color: #d4b15c;
+            background: rgba(212, 177, 92, 0.15);
+        }
+        
+        .channel-title {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
+            color: #f5f5f5;
+        }
+        
+        .channel-icon {
+            color: #d4b15c;
+        }
+        
+        .m3u8-link {
+            background: rgba(20, 20, 30, 0.7);
+            padding: 6px 8px;
+            border-radius: 6px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 35px;
+            overflow-y: auto;
+            color: #b8b8b8;
+            flex-grow: 1;
+        }
+        
+        .result-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.05rem;
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 2px solid transparent;
-            min-height: 55px;
-            touch-action: manipulation;
-        }
-
-        .channel-card:active {
-            transform: scale(0.98);
-        }
-
-        .channel-card.playing {
-            border-color: var(--primary);
-            background: linear-gradient(135deg, var(--dark-light), rgba(99, 102, 241, 0.1));
-        }
-
-        .channel-card.favorite {
-            border-color: var(--secondary);
-        }
-
-        .channel-card.custom {
-            border-color: var(--success);
-        }
-
-        .channel-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
-            flex-shrink: 0;
+            gap: 6px;
+        }
+        
+        /* Schema colori verticale - Colonna 4 */
+        .action-btn.copy {
+            background: #2a8c85; /* Verde acqua */
+            color: white;
+        }
+        
+        .action-btn.copy:hover {
+            background: #237a74;
+        }
+        
+        .action-btn.play {
+            background: #8a6bc9; /* Viola */
+            color: white;
+        }
+        
+        .action-btn.play:hover {
+            background: #7a5bb9;
         }
 
-        .channel-icon.custom {
-            background: linear-gradient(135deg, var(--success), #059669);
+        .action-btn.favorite {
+            background: #d4b15c; /* Oro */
+            color: #2a2a2a;
         }
 
-        .channel-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .channel-name {
-            font-weight: 600;
-            font-size: 0.8rem;
-            margin-bottom: 0.1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.2rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .channel-url {
-            font-size: 0.65rem;
-            color: var(--gray);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .channel-actions {
-            display: flex;
-            gap: 0.2rem;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            padding: 0.25rem;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            font-size: 0.75rem;
-            touch-action: manipulation;
-        }
-
-        .action-btn:active {
-            transform: scale(0.9);
+        .action-btn.favorite:hover {
+            background: #c4a14c;
         }
 
         .action-btn.favorite.active {
-            color: var(--secondary);
-        }
-
-        .action-btn.copy {
-            color: var(--primary);
-        }
-
-        .action-btn.delete {
-            color: var(--secondary);
-        }
-
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .loading-spinner {
-            width: 35px;
-            height: 35px;
-            border: 2px solid rgba(255,255,255,0.1);
-            border-top: 2px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 0.6rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--dark-light);
-            color: var(--light);
-            padding: 0.6rem 0.8rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 1000;
-            transition: transform 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.8rem;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        body.fullscreen {
-            overflow: hidden;
-            background: #000;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-        }
-
-        .fullscreen .video-section {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1000;
-            background: #000;
-        }
-
-        .fullscreen .video-container {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .fullscreen #video-player {
-            height: 100%;
-            width: 100%;
-            object-fit: contain;
-        }
-
-        .fullscreen .custom-controls {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1001;
-            opacity: 1;
-        }
-
-        .fullscreen .content {
-            display: none;
-        }
-
-        .fullscreen .header {
-            display: none;
-        }
-
-        .custom-url-container {
-            background: var(--dark-light);
-            padding: 0.8rem;
-            border-radius: 8px;
-            margin: 0.5rem 0;
-            display: none;
-        }
-
-        .custom-url-container.show {
-            display: block;
-        }
-
-        .url-input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .url-input, .channel-name-input {
-            width: 100%;
-            padding: 0.6rem;
-            background: var(--dark);
-            border: 2px solid transparent;
-            border-radius: 6px;
-            color: var(--light);
-            font-size: 0.8rem;
-        }
-
-        .url-input:focus, .channel-name-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .url-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .url-play-btn, .url-save-btn {
-            flex: 1;
-            background: var(--success);
+            background: #c55c5c; /* Rosso */
             color: white;
-            border: none;
-            padding: 0.6rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
         }
-
-        .url-save-btn {
-            background: var(--primary);
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            font-size: 1.25rem;
+            grid-column: 1 / -1;
+            color: #c8c8c8;
         }
-
+        
         .no-results {
             text-align: center;
-            padding: 2rem;
-            color: var(--gray);
-            font-size: 0.8rem;
+            padding: 30px;
+            font-size: 1.25rem;
+            grid-column: 1 / -1;
+            color: #c8c8c8;
         }
-
-        /* Stili specifici per Feeds Finder - mantenendo la funzionalità originale */
-        .results-container {
-            display: grid;
-            gap: 0.4rem;
-            grid-template-columns: 1fr;
-        }
-
-        .result-card {
-            background: var(--dark-light);
-            border-radius: 8px;
-            padding: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            min-height: 55px;
-            touch-action: manipulation;
-        }
-
-        .result-card:active {
-            transform: scale(0.98);
-        }
-
-        .result-card.playing {
-            border-color: var(--primary);
-            background: linear-gradient(135deg, var(--dark-light), rgba(99, 102, 241, 0.1));
-        }
-
-        .result-card.favorite {
-            border-color: var(--secondary);
-        }
-
-        .m3u8-link {
-            font-size: 0.65rem;
-            color: var(--gray);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .result-actions {
-            display: flex;
-            gap: 0.2rem;
-        }
-
+        
         .pagination {
             display: flex;
             justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+            grid-column: 1 / -1;
         }
-
+        
         .page-btn {
-            padding: 0.4rem 0.8rem;
+            padding: 10px 18px;
             border: none;
-            border-radius: 6px;
-            background: var(--dark-light);
-            color: var(--light);
+            border-radius: 8px;
+            background: rgba(50, 50, 65, 0.9);
+            color: #d0d0d0;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.8rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.1rem;
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
-
+        
         .page-btn.active {
-            background: var(--primary);
+            background: #8a6bc9; /* Viola */
             color: white;
         }
-
+        
         .page-btn:hover:not(.active) {
-            background: var(--primary-dark);
+            background: rgba(70, 70, 85, 0.9);
         }
 
-        @media (min-width: 768px) {
-            #video-player {
-                height: 220px;
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: rgba(40, 40, 55, 0.95);
+            color: #f0f0f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #d4b15c;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            font-size: 1.05rem;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left-color: #2a8c85;
+        }
+
+        .toast.error {
+            border-left-color: #c55c5c;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
             }
             
-            .player-placeholder {
-                height: 220px;
+            .fixed-top {
+                top: 10px;
             }
             
-            .channel-list, .results-container {
-                grid-template-columns: 1fr 1fr;
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .search-input, .search-btn {
+                width: 100%;
+            }
+            
+            .video-container {
+                aspect-ratio: 16/9;
+            }
+            
+            .results-section {
+                padding: 16px;
+            }
+            
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-card {
+                padding: 10px;
+                min-height: 130px;
+            }
+            
+            .channel-title {
+                font-size: 1.1rem;
             }
 
-            .url-input-group {
-                flex-direction: row;
+            .tabs-container {
+                flex-wrap: wrap;
             }
 
-            .url-input, .channel-name-input {
+            .tab {
                 flex: 1;
+                min-width: 140px;
+                text-align: center;
             }
 
-            .compact-btn {
-                padding: 0.5rem 0.6rem;
-                font-size: 0.75rem;
-                gap: 0.4rem;
+            /* CORRETTO: Rimossa la proprietà flex-direction: column */
+            .favorites-controls {
+                /* flex-direction: column; RIMOSSO */
+            }
+
+            .player-controls {
+                flex-wrap: wrap;
             }
         }
-
-        @media (max-width: 380px) {
-            .compact-btn span {
-                display: none;
-            }
-            
-            .compact-btn {
-                padding: 0.5rem;
-                justify-content: center;
-            }
-            
-            .compact-btn i {
-                margin: 0;
-            }
-        }
-
+        
         @media (max-width: 480px) {
-            .compact-btn span {
-                font-size: 0.65rem;
+            .result-actions {
+                flex-wrap: wrap;
+            }
+
+            .action-btn {
+                min-width: 45%;
+            }
+
+            /* CORRETTO: Su schermi molto piccoli, manteniamo i pulsanti in riga */
+            .favorites-controls {
+                flex-wrap: nowrap;
+            }
+
+            .favorites-btn {
+                font-size: 1rem;
+                padding: 12px 8px;
+            }
+
+            .favorites-btn i {
+                margin-right: 4px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">
-                <i class="fas fa-satellite-dish"></i>
-                <span>Feeds Finder</span>
-            </div>
-            <div class="nav-tabs">
-                <button class="nav-tab active" onclick="switchTab('search')">
-                    <i class="fas fa-search"></i>
-                </button>
-                <button class="nav-tab" onclick="switchTab('favorites')">
-                    <i class="fas fa-heart"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <section class="video-section" id="video-section">
-        <div class="video-container" id="video-container">
-            <div id="player-placeholder" class="player-placeholder">
-                <i class="fas fa-play-circle"></i>
-                <div style="font-size: 0.8rem; margin-top: 0.5rem;">Pronto per la riproduzione...</div>
-            </div>
-            
-            <video 
-                id="video-player" 
-                playsinline
-                crossorigin="anonymous"
-                class="hidden"
-            >
-                Il tuo browser non supporta il tag video.
-            </video>
-            
-            <div class="custom-controls">
-                <div class="progress-container" onclick="seekVideo(event)">
-                    <div class="progress-bar" id="progress-bar"></div>
-                </div>
-                <div class="control-buttons">
-                    <div class="control-left">
-                        <button class="control-btn" onclick="togglePlay()" id="play-btn">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        <button class="control-btn stop" onclick="stopVideo()" id="stop-btn">
-                            <i class="fas fa-stop"></i>
-                        </button>
-                    </div>
-                    <div class="control-right">
-                        <button class="control-btn" onclick="toggleFullscreen()" id="fullscreen-btn">
-                            <i class="fas fa-expand"></i>
-                        </button>
+    <div class="container">
+        <div class="fixed-top">
+            <div class="player-section">
+                <div class="player-header">
+                    <div class="player-title">
+                        <i class="fas fa-satellite-dish"></i> Feeds Finder
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="content">
-        <div class="button-group">
-            <button class="compact-btn import" onclick="document.getElementById('import-file').click()">
-                <i class="fas fa-upload"></i>
-                <span>Importa</span>
-            </button>
-            <button class="compact-btn export" onclick="exportFavorites()">
-                <i class="fas fa-download"></i>
-                <span>Esporta</span>
-            </button>
-            <button class="compact-btn custom" onclick="clearFavorites()">
-                <i class="fas fa-trash"></i>
-                <span>Cancella</span>
-            </button>
-            <input type="file" id="import-file" class="file-input" accept=".json" onchange="importFavorites(event)">
-        </div>
-
-        <div class="search-container">
-            <input type="text" id="search-input" class="search-input" placeholder="Cerca canali TV, sport, news, film...">
-            <div class="search-icon">
-                <i class="fas fa-search"></i>
-            </div>
-        </div>
-
-        <div id="results-header" style="margin-bottom: 0.8rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="font-weight: 600; font-size: 0.9rem; color: var(--light);">
-                    <i class="fas fa-list"></i> <span id="results-title">Risultati Ricerca</span>
+                <div class="video-container">
+                    <video id="videoPlayer" controls></video>
                 </div>
-                <div id="results-count" style="background: rgba(255,255,255,0.2); padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.7rem;">
-                    0
+                <div class="player-controls">
+                    <button class="control-btn play" id="playBtn" title="Play"><i class="fas fa-play"></i></button>
+                    <button class="control-btn pause" id="pauseBtn" title="Pausa"><i class="fas fa-pause"></i></button>
+                    <button class="control-btn stop" id="stopBtn" title="Stop"><i class="fas fa-stop"></i></button>
+                </div>
+                <div class="current-stream" id="currentStream">
+                    Nessuno stream selezionato
                 </div>
             </div>
-        </div>
-
-        <div id="results-container" class="results-container">
-            <div class="no-results">
-                <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                <div>Inserisci un termine di ricerca per iniziare...</div>
+            
+            <div class="search-box">
+                <form class="search-form" id="searchForm">
+                    <input type="text" class="search-input" id="searchQuery" placeholder="Cerca canali TV, sport, news, film...">
+                    <button type="submit" class="search-btn"><i class="fas fa-search"></i> Cerca Canali</button>
+                </form>
             </div>
         </div>
+        
+        <div class="results-section">
+            <div class="tabs-container">
+                <button class="tab active" id="searchTab">Ricerca Canali</button>
+                <button class="tab" id="favoritesTab">Preferiti</button>
+            </div>
 
-        <div class="pagination" id="pagination">
-            <!-- I pulsanti di paginazione verranno inseriti qui dinamicamente -->
+            <!-- I controlli preferiti sono visibili SOLO nella vista Preferiti -->
+            <div class="favorites-controls" id="favoritesControls" style="display: none;">
+                <button class="favorites-btn import" id="importFavoritesBtn">
+                    <i class="fas fa-file-import"></i> Importa
+                </button>
+                <button class="favorites-btn export" id="exportFavoritesBtn">
+                    <i class="fas fa-file-export"></i> Esporta
+                </button>
+                <button class="favorites-btn delete" id="clearFavoritesBtn">
+                    <i class="fas fa-trash"></i> Cancella
+                </button>
+            </div>
+            
+            <div class="results-header">
+                <div class="results-title"><i class="fas fa-list"></i> <span id="resultsTitle">Risultati Ricerca</span></div>
+                <div class="results-count" id="resultsCount">0</div>
+            </div>
+            
+            <div class="results-container" id="resultsContainer">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Inserisci un termine di ricerca per iniziare...
+                </div>
+            </div>
+            
+            <div class="pagination" id="pagination">
+                <!-- I pulsanti di paginazione verranno inseriti qui dinamicamente -->
+            </div>
         </div>
-    </section>
-
-    <div id="loading" class="loading hidden">
-        <div class="loading-spinner"></div>
-        <div id="loading-text" style="font-size: 0.8rem;">Caricamento stream...</div>
     </div>
 
-    <div class="toast" id="toast">
-        <i class="fas fa-info-circle"></i>
-        <span id="toast-message">Messaggio</span>
-    </div>
+    <div id="toastContainer"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    
     <script>
         // Elementi DOM
-        const videoPlayer = document.getElementById('video-player');
-        const playerPlaceholder = document.getElementById('player-placeholder');
-        const searchInput = document.getElementById('search-input');
-        const resultsContainer = document.getElementById('results-container');
-        const resultsCount = document.getElementById('results-count');
-        const resultsTitle = document.getElementById('results-title');
-        const loading = document.getElementById('loading');
-        const loadingText = document.getElementById('loading-text');
-        const progressBar = document.getElementById('progress-bar');
-        const playBtn = document.getElementById('play-btn');
-        const stopBtn = document.getElementById('stop-btn');
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
-        const videoContainer = document.getElementById('video-container');
-        const toast = document.getElementById('toast');
-        const toastMessage = document.getElementById('toast-message');
+        const searchForm = document.getElementById('searchForm');
+        const searchQuery = document.getElementById('searchQuery');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const resultsCount = document.getElementById('resultsCount');
+        const resultsTitle = document.getElementById('resultsTitle');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const currentStream = document.getElementById('currentStream');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
         const pagination = document.getElementById('pagination');
-
+        const searchTab = document.getElementById('searchTab');
+        const favoritesTab = document.getElementById('favoritesTab');
+        const favoritesControls = document.getElementById('favoritesControls');
+        const importFavoritesBtn = document.getElementById('importFavoritesBtn');
+        const exportFavoritesBtn = document.getElementById('exportFavoritesBtn');
+        const clearFavoritesBtn = document.getElementById('clearFavoritesBtn');
+        const toastContainer = document.getElementById('toastContainer');
+        
         // Variabili globali
         let currentResults = [];
         let currentPage = 1;
         const resultsPerPage = 15;
         let hls = null;
         let favorites = JSON.parse(localStorage.getItem('m3u8_favorites')) || [];
-        let currentTab = 'search';
-        let isFullscreen = false;
-
+        let currentView = 'search'; // Vista iniziale: ricerca
+        
         // Database di canali esteso
         const CHANNEL_DATABASE = [
             { name: "Rai 1", categories: ["entertainment", "news"], country: "it" },
@@ -928,66 +716,78 @@
             { name: "TVE", categories: ["entertainment"], country: "es" }
         ];
 
-        // Inizializzazione
-        function init() {
-            setupEventListeners();
-            loadUserPreferences();
-            disableNativeControls();
+        // Funzione per mostrare toast notifications
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toastContainer.removeChild(toast);
+                }, 300);
+            }, 3000);
         }
 
-        // Setup event listeners
-        function setupEventListeners() {
-            videoPlayer.addEventListener('timeupdate', updateProgressBar);
-            videoPlayer.addEventListener('play', updatePlayButton);
-            videoPlayer.addEventListener('pause', updatePlayButton);
-            videoPlayer.addEventListener('volumechange', updateVolumeUI);
-            videoPlayer.addEventListener('ended', onVideoEnded);
-            videoPlayer.addEventListener('loadedmetadata', onVideoLoaded);
-            videoPlayer.addEventListener('error', onVideoError);
-            
-            searchInput.addEventListener('input', handleSearch);
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    performSearch();
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestori eventi player
+            playBtn.addEventListener('click', function() {
+                if (videoPlayer.src) {
+                    videoPlayer.play();
+                    showToast('Riproduzione avviata', 'success');
                 }
             });
             
-            videoContainer.addEventListener('touchstart', handleVideoTouchStart);
-            videoContainer.addEventListener('touchend', handleVideoTouchEnd);
+            pauseBtn.addEventListener('click', function() {
+                videoPlayer.pause();
+                showToast('Riproduzione in pausa', 'info');
+            });
             
-            document.addEventListener('fullscreenchange', handleFullscreenChange);
-            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-            document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+            stopBtn.addEventListener('click', function() {
+                videoPlayer.pause();
+                videoPlayer.currentTime = 0;
+                if (hls) {
+                    hls.destroy();
+                    hls = null;
+                }
+                currentStream.textContent = 'Nessuno stream selezionato';
+                showToast('Riproduzione fermata', 'info');
+            });
 
-            document.addEventListener('keydown', handleKeyPress);
-        }
+            // Gestori tab
+            searchTab.addEventListener('click', () => switchView('search'));
+            favoritesTab.addEventListener('click', () => switchView('favorites'));
 
-        // Disabilita controlli nativi
-        function disableNativeControls() {
-            videoPlayer.removeAttribute('controls');
-        }
+            // Gestori preferiti
+            importFavoritesBtn.addEventListener('click', importFavorites);
+            exportFavoritesBtn.addEventListener('click', exportFavorites);
+            clearFavoritesBtn.addEventListener('click', clearFavorites);
 
+            // Inizializza la vista ricerca
+            switchView('search');
+        });
+        
         // Gestione ricerca
-        function handleSearch(event) {
-            // Ricerca in tempo reale
-            const query = event.target.value.trim();
-            if (query.length >= 2) {
-                performSearch();
-            }
-        }
-
-        function performSearch() {
-            const query = searchInput.value.trim();
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const query = searchQuery.value.trim();
+            
             if (query) {
                 currentPage = 1;
                 searchM3U8(query);
             }
-        }
-
-        // Funzione di ricerca
+        });
+        
+        // Funzione di ricerca avanzata
         async function searchM3U8(query) {
-            resultsContainer.innerHTML = '<div class="no-results"><i class="fas fa-spinner fa-spin"></i> Scansionando migliaia di canali disponibili...</div>';
+            resultsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Scansionando migliaia di canali disponibili...</div>';
             
             try {
                 const apiResults = await fetchFromAPI(query);
@@ -998,16 +798,16 @@
                 currentResults = uniqueResults;
                 displayResults(currentResults, currentPage);
                 updatePagination(currentResults.length);
-                showToast(`Trovati ${currentResults.length} canali`);
+                showToast(`Trovati ${currentResults.length} canali`, 'success');
             } catch (error) {
                 console.error('Errore ricerca:', error);
                 currentResults = searchLocalDatabase(query);
                 displayResults(currentResults, currentPage);
                 updatePagination(currentResults.length);
-                showToast(`Trovati ${currentResults.length} canali (modalità offline)`);
+                showToast(`Trovati ${currentResults.length} canali (modalità offline)`, 'info');
             }
         }
-
+        
         // Ricerca nel database locale
         function searchLocalDatabase(query) {
             const searchTerms = query.toLowerCase().split(' ');
@@ -1040,7 +840,7 @@
             const additionalResults = generateAdditionalResults(query, 20);
             return [...results, ...additionalResults];
         }
-
+        
         // Genera risultati aggiuntivi
         function generateAdditionalResults(query, count) {
             const results = [];
@@ -1065,7 +865,20 @@
             
             return results;
         }
-
+        
+        // Rimuove duplicati
+        function removeDuplicates(results) {
+            const seen = new Set();
+            return results.filter(item => {
+                const key = item.url;
+                if (seen.has(key)) {
+                    return false;
+                }
+                seen.add(key);
+                return true;
+            });
+        }
+        
         // Fetch da API reale
         async function fetchFromAPI(query) {
             try {
@@ -1099,7 +912,7 @@
                 return [];
             }
         }
-
+        
         // Genera URL realistici per stream
         function generateRealisticStreamURL(country, category, query, id) {
             const domains = [
@@ -1117,20 +930,7 @@
             
             return `https://${domain}-${country}-${channelName}-${id}.${provider}/${category}/playlist.m3u8`;
         }
-
-        // Rimuove duplicati
-        function removeDuplicates(results) {
-            const seen = new Set();
-            return results.filter(item => {
-                const key = item.url;
-                if (seen.has(key)) {
-                    return false;
-                }
-                seen.add(key);
-                return true;
-            });
-        }
-
+        
         // Mostra i risultati
         function displayResults(results, page) {
             const startIndex = (page - 1) * resultsPerPage;
@@ -1152,33 +952,31 @@
                 resultCard.dataset.id = result.id;
                 
                 const isFavorite = favorites.some(fav => fav.url === result.url);
-                const favoriteBtnClass = isFavorite ? 'favorite active' : 'favorite';
+                const favoriteBtnClass = isFavorite ? 'favorite-btn active' : 'favorite-btn';
                 const favoriteBtnIcon = isFavorite ? 'fas fa-heart' : 'far fa-heart';
                 const favoriteBtnTitle = isFavorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti';
                 
+                const qualityBadge = result.quality === 'HD' || result.quality === 'FHD' ? 
+                    `<span style="color:#d4b15c; margin-left:5px; background:rgba(255,255,255,0.12); padding:3px 8px; border-radius:12px; font-size:0.85rem;">
+                        <i class="fas fa-hd-tv"></i> ${result.quality}
+                    </span>` : '';
+                
+                const countryBadge = result.country ? 
+                    `<span style="margin-left:5px; background:rgba(255,255,255,0.12); padding:3px 8px; border-radius:12px; font-size:0.85rem;">
+                        <i class="fas fa-globe"></i> ${result.country.toUpperCase()}
+                    </span>` : '';
+                
                 resultCard.innerHTML = `
-                    <div class="channel-icon">
-                        <i class="fas fa-tv"></i>
+                    <div class="channel-title">
+                        <i class="fas fa-tv channel-icon"></i> ${result.title} 
+                        ${qualityBadge} ${countryBadge}
                     </div>
-                    <div class="channel-info">
-                        <div class="channel-name">
-                            ${result.title}
-                            ${result.quality === 'HD' || result.quality === 'FHD' ? 
-                                `<span style="color:var(--warning); margin-left:5px; font-size:0.6rem;">
-                                    <i class="fas fa-hd-tv"></i> ${result.quality}
-                                </span>` : ''}
-                            ${result.country ? 
-                                `<span style="margin-left:5px; font-size:0.6rem;">
-                                    <i class="fas fa-globe"></i> ${result.country.toUpperCase()}
-                                </span>` : ''}
-                        </div>
-                        <div class="m3u8-link">${result.url}</div>
-                    </div>
-                    <div class="channel-actions">
+                    <div class="m3u8-link">${result.url}</div>
+                    <div class="result-actions">
                         <button class="action-btn copy" onclick="copyToClipboard('${result.url}')" title="Copia link">
                             <i class="fas fa-copy"></i>
                         </button>
-                        <button class="action-btn" onclick="playStream('${result.url}', '${result.title}', ${result.id})" title="Riproduci">
+                        <button class="action-btn play" onclick="playStream('${result.url}', '${result.title}', ${result.id})" title="Riproduci">
                             <i class="fas fa-play"></i>
                         </button>
                         <button class="action-btn ${favoriteBtnClass}" onclick="toggleFavorite('${result.url}', '${result.title.replace(/'/g, "\\'")}')" title="${favoriteBtnTitle}">
@@ -1190,7 +988,7 @@
                 resultsContainer.appendChild(resultCard);
             });
         }
-
+        
         // Aggiorna la paginazione
         function updatePagination(totalResults) {
             const totalPages = Math.ceil(totalResults / resultsPerPage);
@@ -1204,12 +1002,13 @@
                 prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
                 prevBtn.addEventListener('click', () => {
                     currentPage--;
-                    if (currentTab === 'search') {
+                    if (currentView === 'search') {
                         displayResults(currentResults, currentPage);
                     } else {
                         displayFavorites(currentPage);
                     }
                     updatePagination(totalResults);
+                    resultsContainer.scrollTop = 0;
                 });
                 pagination.appendChild(prevBtn);
             }
@@ -1221,19 +1020,19 @@
                     pageBtn.textContent = i;
                     pageBtn.addEventListener('click', () => {
                         currentPage = i;
-                        if (currentTab === 'search') {
+                        if (currentView === 'search') {
                             displayResults(currentResults, currentPage);
                         } else {
                             displayFavorites(currentPage);
                         }
                         updatePagination(totalResults);
+                        resultsContainer.scrollTop = 0;
                     });
                     pagination.appendChild(pageBtn);
                 } else if (i === currentPage - 2 || i === currentPage + 2) {
                     const ellipsis = document.createElement('span');
                     ellipsis.textContent = '...';
                     ellipsis.style.padding = '8px 5px';
-                    ellipsis.style.color = 'var(--gray)';
                     pagination.appendChild(ellipsis);
                 }
             }
@@ -1244,37 +1043,72 @@
                 nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
                 nextBtn.addEventListener('click', () => {
                     currentPage++;
-                    if (currentTab === 'search') {
+                    if (currentView === 'search') {
                         displayResults(currentResults, currentPage);
                     } else {
                         displayFavorites(currentPage);
                     }
                     updatePagination(totalResults);
+                    resultsContainer.scrollTop = 0;
                 });
                 pagination.appendChild(nextBtn);
             }
         }
-
-        // Navigazione tab
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+        
+        // Copia negli appunti
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Link copiato negli appunti!', 'success');
+            }).catch(err => {
+                console.error('Errore nella copia: ', err);
+                showToast('Errore nella copia del link', 'error');
+            });
+        }
+        
+        // Riproduci stream
+        function playStream(url, title, id) {
+            document.querySelectorAll('.result-card').forEach(card => {
+                card.classList.remove('active');
+            });
             
-            if (tab === 'search') {
-                resultsTitle.textContent = 'Risultati Ricerca';
-                if (currentResults.length === 0) {
-                    resultsContainer.innerHTML = '<div class="no-results">Inserisci un termine di ricerca per iniziare...</div>';
-                    resultsCount.textContent = '0';
-                    pagination.innerHTML = '';
-                } else {
-                    displayResults(currentResults, currentPage);
-                    updatePagination(currentResults.length);
-                }
+            const currentCard = document.querySelector(`.result-card[data-id="${id}"]`);
+            if (currentCard) {
+                currentCard.classList.add('active');
+            }
+            
+            currentStream.textContent = `${title}\n${url}`;
+            
+            if (hls) {
+                hls.destroy();
+            }
+            
+            if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                videoPlayer.src = url;
+                videoPlayer.play().catch(e => {
+                    console.error('Errore riproduzione:', e);
+                    showToast('Impossibile riprodurre lo stream', 'error');
+                });
+            } else if (Hls.isSupported()) {
+                hls = new Hls({
+                    debug: false,
+                    enableWorker: false
+                });
+                hls.loadSource(url);
+                hls.attachMedia(videoPlayer);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    videoPlayer.play().catch(e => {
+                        console.error('Errore riproduzione:', e);
+                        showToast('Impossibile riprodurre lo stream', 'error');
+                    });
+                });
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    console.error('HLS error:', data);
+                    if (data.fatal) {
+                        showToast('Errore nel caricamento dello stream', 'error');
+                    }
+                });
             } else {
-                resultsTitle.textContent = 'Canali Preferiti';
-                displayFavorites(currentPage);
-                updatePagination(favorites.length);
+                showToast('Browser non supporta riproduzione HLS', 'error');
             }
         }
 
@@ -1284,15 +1118,15 @@
             
             if (existingIndex > -1) {
                 favorites.splice(existingIndex, 1);
-                showToast('Rimosso dai preferiti!');
+                showToast('Rimosso dai preferiti!', 'info');
             } else {
                 favorites.push({ url, title });
-                showToast('Aggiunto ai preferiti!');
+                showToast('Aggiunto ai preferiti!', 'success');
             }
             
             localStorage.setItem('m3u8_favorites', JSON.stringify(favorites));
             
-            if (currentTab === 'search') {
+            if (currentView === 'search') {
                 displayResults(currentResults, currentPage);
             } else {
                 displayFavorites(currentPage);
@@ -1315,27 +1149,20 @@
             
             paginatedFavorites.forEach((fav, index) => {
                 const resultCard = document.createElement('div');
-                resultCard.className = 'result-card favorite';
+                resultCard.className = 'result-card';
                 resultCard.dataset.id = `fav-${index}`;
                 
                 resultCard.innerHTML = `
-                    <div class="channel-icon">
-                        <i class="fas fa-heart" style="color: var(--secondary);"></i>
+                    <div class="channel-title">
+                        <i class="fas fa-tv channel-icon"></i> ${fav.title}
+                        <span style="color:#d4b15c; margin-left:5px;"><i class="fas fa-heart"></i> Preferito</span>
                     </div>
-                    <div class="channel-info">
-                        <div class="channel-name">
-                            ${fav.title}
-                            <span style="color:var(--secondary); margin-left:5px; font-size:0.6rem;">
-                                <i class="fas fa-heart"></i> Preferito
-                            </span>
-                        </div>
-                        <div class="m3u8-link">${fav.url}</div>
-                    </div>
-                    <div class="channel-actions">
+                    <div class="m3u8-link">${fav.url}</div>
+                    <div class="result-actions">
                         <button class="action-btn copy" onclick="copyToClipboard('${fav.url}')" title="Copia link">
                             <i class="fas fa-copy"></i>
                         </button>
-                        <button class="action-btn" onclick="playStream('${fav.url}', '${fav.title}', 'fav-${index}')" title="Riproduci">
+                        <button class="action-btn play" onclick="playStream('${fav.url}', '${fav.title}', 'fav-${index}')" title="Riproduci">
                             <i class="fas fa-play"></i>
                         </button>
                         <button class="action-btn favorite active" onclick="toggleFavorite('${fav.url}', '${fav.title.replace(/'/g, "\\'")}')" title="Rimuovi dai preferiti">
@@ -1348,230 +1175,70 @@
             });
         }
 
-        // Copia negli appunti
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('Link copiato negli appunti!');
-            }).catch(err => {
-                console.error('Errore nella copia: ', err);
-                showToast('Errore nella copia del link');
-            });
-        }
-
-        // Riproduci stream
-        function playStream(url, title, id) {
-            document.querySelectorAll('.result-card').forEach(card => {
-                card.classList.remove('playing');
-            });
+        function switchView(view) {
+            currentView = view;
+            currentPage = 1;
             
-            const currentCard = document.querySelector(`.result-card[data-id="${id}"]`);
-            if (currentCard) {
-                currentCard.classList.add('playing');
-            }
+            searchTab.classList.toggle('active', view === 'search');
+            favoritesTab.classList.toggle('active', view === 'favorites');
             
-            loadingText.textContent = "Connessione allo stream...";
-            loading.classList.remove('hidden');
-            playerPlaceholder.classList.add('hidden');
-            videoPlayer.classList.remove('hidden');
-
-            if (hls) {
-                hls.destroy();
-            }
-
-            videoPlayer.pause();
-            videoPlayer.src = '';
-
-            if (url.includes('.m3u8') && Hls.isSupported()) {
-                hls = new Hls({
-                    enableWorker: true,
-                    lowLatencyMode: true,
-                    backBufferLength: 90
-                });
-                
-                hls.loadSource(url);
-                hls.attachMedia(videoPlayer);
-                
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    loading.classList.add('hidden');
-                    videoPlayer.play().then(() => {
-                        showToast(`Canale: ${title}`);
-                    }).catch(e => {
-                        console.log('Auto-play fallito:', e);
-                        showToast('Clicca play per avviare il video');
-                    });
-                });
-
-                hls.on(Hls.Events.ERROR, (event, data) => {
-                    console.error('HLS Error:', data);
-                    if (data.fatal) {
-                        loading.classList.add('hidden');
-                        showToast(`Errore stream: ${title}`);
-                    }
-                });
-            } else {
-                videoPlayer.src = url;
-                videoPlayer.addEventListener('loadedmetadata', () => {
-                    loading.classList.add('hidden');
-                    videoPlayer.play().then(() => {
-                        showToast(`Canale: ${title}`);
-                    }).catch(e => {
-                        console.log('Auto-play fallito:', e);
-                        showToast('Clicca play per avviare il video');
-                    });
-                });
-            }
-
-            videoPlayer.addEventListener('error', () => {
-                loading.classList.add('hidden');
-                showToast(`Errore caricamento: ${title}`);
-            });
-
-            setTimeout(() => {
-                if (!loading.classList.contains('hidden')) {
-                    loading.classList.add('hidden');
-                    showToast(`Timeout: ${title}`);
+            // CORRETTO: Mostra i controlli preferiti SOLO nella vista Preferiti
+            favoritesControls.style.display = view === 'favorites' ? 'flex' : 'none';
+            
+            resultsTitle.textContent = view === 'search' ? 'Risultati Ricerca' : 'Canali Preferiti';
+            
+            if (view === 'search') {
+                if (currentResults.length === 0) {
+                    resultsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Inserisci un termine di ricerca per iniziare...</div>';
+                    resultsCount.textContent = '0';
+                    pagination.innerHTML = '';
+                } else {
+                    displayResults(currentResults, currentPage);
+                    updatePagination(currentResults.length);
                 }
-            }, 10000);
-        }
-
-        // Controlli video
-        function togglePlay() {
-            if (videoPlayer.paused) {
-                videoPlayer.play();
-                showToast('Riproduzione');
             } else {
-                videoPlayer.pause();
-                showToast('Pausa');
+                displayFavorites(currentPage);
+                updatePagination(favorites.length);
             }
         }
 
-        function stopVideo() {
-            videoPlayer.pause();
-            videoPlayer.currentTime = 0;
-            showToast('Fermato');
-        }
-
-        function updatePlayButton() {
-            playBtn.innerHTML = videoPlayer.paused ? 
-                '<i class="fas fa-play"></i>' : 
-                '<i class="fas fa-pause"></i>';
-        }
-
-        function updateProgressBar() {
-            if (videoPlayer.duration) {
-                const percent = (videoPlayer.currentTime / videoPlayer.duration) * 100;
-                progressBar.style.width = `${percent}%`;
-            }
-        }
-
-        function seekVideo(event) {
-            const rect = event.currentTarget.getBoundingClientRect();
-            const percent = (event.clientX - rect.left) / rect.width;
-            videoPlayer.currentTime = percent * videoPlayer.duration;
-        }
-
-        // Gestione fullscreen
-        function toggleFullscreen() {
-            if (!isFullscreen) {
-                enterFullscreen();
-            } else {
-                exitFullscreen();
-            }
-        }
-
-        function enterFullscreen() {
-            const element = document.documentElement;
+        function importFavorites() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
             
-            if (element.requestFullscreen) {
-                element.requestFullscreen().catch(err => {
-                    console.log('Fullscreen error:', err);
-                    enterFullscreenFallback();
-                });
-            } else if (element.webkitRequestFullscreen) {
-                element.webkitRequestFullscreen();
-            } else if (element.mozRequestFullScreen) {
-                element.mozRequestFullScreen();
-            } else if (element.msRequestFullscreen) {
-                element.msRequestfullscreen();
-            } else {
-                enterFullscreenFallback();
-            }
-        }
-
-        function enterFullscreenFallback() {
-            document.body.classList.add('fullscreen');
-            isFullscreen = true;
-            fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
-            showToast('Schermo intero');
-        }
-
-        function exitFullscreen() {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            } else if (document.mozCancelFullScreen) {
-                document.mozCancelFullScreen();
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen();
-            } else {
-                document.body.classList.remove('fullscreen');
-                isFullscreen = false;
-                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
-                showToast('Schermo normale');
-            }
-        }
-
-        function handleFullscreenChange() {
-            const fullscreenElement = document.fullscreenElement || 
-                                    document.webkitFullscreenElement || 
-                                    document.mozFullScreenElement || 
-                                    document.msFullscreenElement;
-            
-            isFullscreen = !!fullscreenElement;
-            
-            if (isFullscreen) {
-                document.body.classList.add('fullscreen');
-                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
-            } else {
-                document.body.classList.remove('fullscreen');
-                isFullscreen = false;
-                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
-            }
-        }
-
-        // Importa/Esporta preferiti
-        function importFavorites(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedFavorites = JSON.parse(e.target.result);
-                    if (Array.isArray(importedFavorites)) {
-                        favorites = importedFavorites;
-                        localStorage.setItem('m3u8_favorites', JSON.stringify(favorites));
-                        showToast('Preferiti importati con successo!');
-                        if (currentTab === 'favorites') {
-                            displayFavorites(currentPage);
-                            updatePagination(favorites.length);
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    try {
+                        const importedFavorites = JSON.parse(event.target.result);
+                        if (Array.isArray(importedFavorites)) {
+                            favorites = importedFavorites;
+                            localStorage.setItem('m3u8_favorites', JSON.stringify(favorites));
+                            showToast('Preferiti importati con successo!', 'success');
+                            if (currentView === 'favorites') {
+                                displayFavorites(currentPage);
+                                updatePagination(favorites.length);
+                            }
+                        } else {
+                            showToast('File non valido!', 'error');
                         }
-                    } else {
-                        showToast('File non valido!');
+                    } catch (error) {
+                        showToast('Errore nell\'importazione: ' + error.message, 'error');
                     }
-                } catch (error) {
-                    showToast('Errore nell\'importazione: ' + error.message);
-                }
+                };
+                
+                reader.readAsText(file);
             };
             
-            reader.readAsText(file);
-            event.target.value = '';
+            input.click();
         }
 
         function exportFavorites() {
             if (favorites.length === 0) {
-                showToast('Nessun preferito da esportare!');
+                showToast('Nessun preferito da esportare!', 'info');
                 return;
             }
             
@@ -1583,82 +1250,20 @@
             link.download = 'feeds_finder_favorites.json';
             link.click();
             
-            showToast('Preferiti esportati con successo!');
+            showToast('Preferiti esportati con successo!', 'success');
         }
 
         function clearFavorites() {
             if (confirm('Sei sicuro di voler cancellare tutti i preferiti?')) {
                 favorites = [];
                 localStorage.setItem('m3u8_favorites', JSON.stringify(favorites));
-                showToast('Preferiti cancellati!');
-                if (currentTab === 'favorites') {
+                showToast('Preferiti cancellati!', 'info');
+                if (currentView === 'favorites') {
                     displayFavorites(currentPage);
                     updatePagination(favorites.length);
                 }
             }
         }
-
-        // Utility functions
-        function showToast(message) {
-            toastMessage.textContent = message;
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        function showError(message) {
-            showToast(message);
-        }
-
-        function onVideoEnded() {
-            showToast('Riproduzione completata');
-        }
-
-        function onVideoLoaded() {
-            console.log('Video caricato');
-        }
-
-        function onVideoError() {
-            showError(`Errore caricamento stream`);
-        }
-
-        function updateVolumeUI() {
-            // Gestione volume semplificata
-        }
-
-        function handleVideoTouchStart(e) {
-            videoContainer.classList.add('touch-active');
-        }
-
-        function handleVideoTouchEnd(e) {
-            setTimeout(() => {
-                videoContainer.classList.remove('touch-active');
-            }, 3000);
-        }
-
-        function handleKeyPress(e) {
-            if (e.key === 'Escape' && isFullscreen) {
-                exitFullscreen();
-            }
-            if (e.key === ' ' && e.target === document.body) {
-                e.preventDefault();
-                togglePlay();
-            }
-        }
-
-        function loadUserPreferences() {
-            const savedVolume = localStorage.getItem('volume');
-            if (savedVolume) {
-                videoPlayer.volume = parseFloat(savedVolume);
-            } else {
-                videoPlayer.volume = 0.7;
-            }
-        }
-
-        // Inizializza l'app
-        init();
     </script>
 </body>
 </html>
