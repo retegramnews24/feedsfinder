@@ -30,17 +30,11 @@
             gap: 4px;
         }
         
-        .fixed-top {
+        .player-section {
             position: sticky;
             top: 4px;
             z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        
-        .player-section {
-            background: rgba(30, 30, 45, 0.8);
+            background: rgba(30, 30, 45, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 6px;
             padding: 8px;
@@ -531,36 +525,34 @@
 </head>
 <body>
     <div class="container">
-        <div class="fixed-top">
-            <div class="player-section">
-                <div class="player-header">
-                    <div class="player-title">
-                        <i class="fas fa-satellite-dish"></i> Feeds Finder
-                    </div>
-                </div>
-                <div class="video-container">
-                    <video id="videoPlayer" controls></video>
-                    <div class="channel-name-overlay" id="channelNameOverlay"></div>
-                </div>
-                <div class="player-controls">
-                    <button class="control-btn play" id="playBtn" title="Play"><i class="fas fa-play"></i></button>
-                    <button class="control-btn pause" id="pauseBtn" title="Pausa"><i class="fas fa-pause"></i></button>
-                    <button class="control-btn stop" id="stopBtn" title="Stop"><i class="fas fa-stop"></i></button>
-                    <button class="control-btn pip" id="pipBtn" title="Picture-in-Picture"><i class="fas fa-expand"></i></button>
+        <div class="player-section">
+            <div class="player-header">
+                <div class="player-title">
+                    <i class="fas fa-satellite-dish"></i> Feeds Finder
                 </div>
             </div>
+            <div class="video-container">
+                <video id="videoPlayer" controls></video>
+                <div class="channel-name-overlay" id="channelNameOverlay"></div>
+            </div>
+            <div class="player-controls">
+                <button class="control-btn play" id="playBtn" title="Play"><i class="fas fa-play"></i></button>
+                <button class="control-btn pause" id="pauseBtn" title="Pausa"><i class="fas fa-pause"></i></button>
+                <button class="control-btn stop" id="stopBtn" title="Stop"><i class="fas fa-stop"></i></button>
+                <button class="control-btn pip" id="pipBtn" title="Picture-in-Picture"><i class="fas fa-expand"></i></button>
+            </div>
+        </div>
+        
+        <div class="search-box">
+            <form class="search-form" id="searchForm">
+                <input type="text" class="search-input" id="searchQuery" placeholder="Cerca canali TV, sport, news, film...">
+                <button type="submit" class="search-btn"><i class="fas fa-search"></i> Cerca Canali</button>
+            </form>
             
-            <div class="search-box">
-                <form class="search-form" id="searchForm">
-                    <input type="text" class="search-input" id="searchQuery" placeholder="Cerca canali TV, sport, news, film...">
-                    <button type="submit" class="search-btn"><i class="fas fa-search"></i> Cerca Canali</button>
-                </form>
-                
-                <div class="custom-url-form">
-                    <input type="text" class="custom-url-input" id="customUrlInput" placeholder="Inserisci URL stream personalizzato">
-                    <input type="text" class="custom-name-input" id="customNameInput" placeholder="Nome del canale">
-                    <button type="button" class="add-custom-btn" id="addCustomBtn"><i class="fas fa-plus"></i> Aggiungi</button>
-                </div>
+            <div class="custom-url-form">
+                <input type="text" class="custom-url-input" id="customUrlInput" placeholder="Inserisci URL stream personalizzato">
+                <input type="text" class="custom-name-input" id="customNameInput" placeholder="Nome del canale">
+                <button type="button" class="add-custom-btn" id="addCustomBtn"><i class="fas fa-plus"></i> Aggiungi</button>
             </div>
         </div>
         
