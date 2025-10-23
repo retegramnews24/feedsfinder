@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Feeds Finder</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -18,31 +18,32 @@
             background: linear-gradient(135deg, #1a1f3d, #3d1a1a, #2a240f);
             color: #f0f0f0;
             min-height: 100vh;
-            padding: 12px;
+            padding: 10px;
+            overflow-x: hidden;
         }
         
         .container {
-            max-width: 1600px;
+            width: 100%;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
         
         .fixed-top {
             position: sticky;
-            top: 12px;
+            top: 10px;
             z-index: 100;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
         
         .player-section {
             background: rgba(30, 30, 45, 0.8);
             backdrop-filter: blur(10px);
             border-radius: 10px;
-            padding: 18px;
+            padding: 15px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
@@ -51,15 +52,15 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 18px;
+            margin-bottom: 15px;
         }
         
         .player-title {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: #ffd166;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         
         .video-container {
@@ -67,7 +68,7 @@
             background: #000;
             border-radius: 10px;
             overflow: hidden;
-            margin-bottom: 18px;
+            margin-bottom: 15px;
             position: relative;
             aspect-ratio: 16/9;
         }
@@ -81,25 +82,25 @@
         
         .player-controls {
             display: flex;
-            gap: 12px;
-            margin-top: 15px;
+            gap: 10px;
+            margin-top: 12px;
         }
         
         .control-btn {
             flex: 1;
-            padding: 16px;
+            padding: 14px;
             border: none;
             border-radius: 10px;
             color: white;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1.15rem;
-            height: 54px;
+            font-size: 1.1rem;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
         
         /* Schema colori verticale - Colonna 1 */
@@ -129,14 +130,14 @@
         
         .current-stream {
             background: rgba(20, 20, 30, 0.7);
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             word-break: break-all;
             font-family: monospace;
-            font-size: 0.85rem;
-            margin-top: 15px;
+            font-size: 0.8rem;
+            margin-top: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            max-height: 80px;
+            max-height: 70px;
             overflow-y: auto;
             color: #c8c8c8;
         }
@@ -145,25 +146,25 @@
             background: rgba(30, 30, 45, 0.8);
             backdrop-filter: blur(10px);
             border-radius: 10px;
-            padding: 18px;
+            padding: 15px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         
         .search-form {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
         }
         
         .search-input {
             flex: 1;
-            min-width: 280px;
-            padding: 16px 18px;
+            min-width: 100%;
+            padding: 14px 16px;
             border: none;
             border-radius: 10px;
             background: rgba(50, 50, 65, 0.9);
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
             color: #f0f0f0;
             border: 1px solid rgba(255, 255, 255, 0.12);
@@ -174,16 +175,17 @@
         }
         
         .search-btn {
-            padding: 16px 28px;
+            width: 100%;
+            padding: 14px 25px;
             border: none;
             border-radius: 10px;
             color: white;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-            height: 54px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -207,20 +209,22 @@
         /* Tabs per Preferiti */
         .tabs-container {
             display: flex;
-            gap: 8px;
-            margin-bottom: 18px;
+            gap: 6px;
+            margin-bottom: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .tab {
-            padding: 12px 24px;
+            flex: 1;
+            padding: 10px 15px;
             background: rgba(40, 40, 55, 0.8);
             border: none;
             border-radius: 10px 10px 0 0;
             color: #d0d0d0;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1.1rem;
+            font-size: 1rem;
+            text-align: center;
         }
 
         .tab.active {
@@ -236,25 +240,25 @@
         /* Sezione Preferiti - Controlli allineati come player controls */
         .favorites-controls {
             display: flex;
-            gap: 12px;
-            margin-bottom: 18px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .favorites-btn {
             flex: 1;
-            padding: 16px;
+            padding: 14px;
             border: none;
             border-radius: 10px;
             color: white;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1.15rem;
-            height: 54px;
+            font-size: 1.1rem;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         /* Schema colori verticale - Colonna 3 */
@@ -286,46 +290,46 @@
             background: rgba(30, 30, 45, 0.8);
             backdrop-filter: blur(10px);
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.08);
             flex: 1;
-            min-height: 550px;
+            min-height: 500px;
         }
         
         .results-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .results-title {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: #ffd166;
         }
         
         .results-count {
             background: rgba(50, 50, 65, 0.9);
-            padding: 8px 15px;
+            padding: 6px 12px;
             border-radius: 18px;
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             color: #d0d0d0;
         }
         
         .results-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
-            gap: 12px;
+            grid-template-columns: 1fr;
+            gap: 10px;
         }
         
         .result-card {
             background: rgba(35, 35, 50, 0.9);
             border-radius: 10px;
-            padding: 12px;
+            padding: 10px;
             transition: all 0.3s ease;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            min-height: 140px;
+            min-height: 130px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -343,11 +347,11 @@
         }
         
         .channel-title {
-            font-size: 1.2rem;
-            margin-bottom: 8px;
+            font-size: 1.1rem;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             color: #f5f5f5;
         }
         
@@ -361,8 +365,8 @@
             border-radius: 6px;
             word-break: break-all;
             font-family: monospace;
-            font-size: 0.85rem;
-            margin-bottom: 10px;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             max-height: 35px;
             overflow-y: auto;
@@ -372,23 +376,23 @@
         
         .result-actions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
         
         .action-btn {
             flex: 1;
-            padding: 10px;
+            padding: 8px;
             border: none;
             border-radius: 6px;
-            font-size: 1.05rem;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            height: 42px;
+            height: 38px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 5px;
         }
         
         /* Schema colori verticale - Colonna 4 */
@@ -426,16 +430,16 @@
         
         .loading {
             text-align: center;
-            padding: 30px;
-            font-size: 1.25rem;
+            padding: 25px;
+            font-size: 1.1rem;
             grid-column: 1 / -1;
             color: #c8c8c8;
         }
         
         .no-results {
             text-align: center;
-            padding: 30px;
-            font-size: 1.25rem;
+            padding: 25px;
+            font-size: 1.1rem;
             grid-column: 1 / -1;
             color: #c8c8c8;
         }
@@ -443,20 +447,21 @@
         .pagination {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 10px;
+            margin-top: 15px;
             grid-column: 1 / -1;
+            flex-wrap: wrap;
         }
         
         .page-btn {
-            padding: 10px 18px;
+            padding: 8px 15px;
             border: none;
             border-radius: 8px;
             background: rgba(50, 50, 65, 0.9);
             color: #d0d0d0;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1.1rem;
+            font-size: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.12);
         }
         
@@ -474,7 +479,7 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 25px;
+            padding: 12px 20px;
             background: rgba(40, 40, 55, 0.95);
             color: #f0f0f0;
             border-radius: 8px;
@@ -483,7 +488,8 @@
             z-index: 1000;
             transform: translateX(400px);
             transition: transform 0.3s ease;
-            font-size: 1.05rem;
+            font-size: 1rem;
+            max-width: 80%;
         }
 
         .toast.show {
@@ -498,30 +504,44 @@
             border-left-color: #c55c5c;
         }
         
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
+        /* Mobile optimizations per Telegram */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 100%;
             }
             
-            .fixed-top {
-                top: 10px;
+            .results-container {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             }
             
             .search-form {
-                flex-direction: column;
+                flex-direction: row;
             }
             
-            .search-input, .search-btn {
-                width: 100%;
+            .search-input {
+                min-width: 280px;
+            }
+            
+            .search-btn {
+                width: auto;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+            
+            .fixed-top {
+                top: 8px;
+            }
+            
+            .player-section, .search-box, .results-section {
+                padding: 12px;
             }
             
             .video-container {
                 aspect-ratio: 16/9;
-            }
-            
-            .results-section {
-                padding: 16px;
             }
             
             .results-container {
@@ -529,12 +549,12 @@
             }
             
             .result-card {
-                padding: 10px;
-                min-height: 130px;
+                padding: 8px;
+                min-height: 120px;
             }
             
             .channel-title {
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
 
             .tabs-container {
@@ -547,37 +567,13 @@
                 text-align: center;
             }
 
-            /* CORRETTO: Rimossa la proprietà flex-direction: column */
-            .favorites-controls {
-                /* flex-direction: column; RIMOSSO */
-            }
-
-            .player-controls {
-                flex-wrap: wrap;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .result-actions {
+            .player-controls, .favorites-controls {
                 flex-wrap: wrap;
             }
 
-            .action-btn {
-                min-width: 45%;
-            }
-
-            /* CORRETTO: Su schermi molto piccoli, manteniamo i pulsanti in riga */
-            .favorites-controls {
-                flex-wrap: nowrap;
-            }
-
-            .favorites-btn {
+            .control-btn, .favorites-btn {
                 font-size: 1rem;
                 padding: 12px 8px;
-            }
-
-            .favorites-btn i {
-                margin-right: 4px;
             }
         }
     </style>
