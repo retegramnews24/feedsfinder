@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Feeds Finder</title>
+    <title>Feeds Finder - Player Sempre Visibile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
@@ -87,12 +87,17 @@
             object-fit: contain;
         }
         
+        /* Controlli sempre visibili */
         .player-controls {
             display: flex;
             gap: 4px;
             margin-top: 6px;
             width: 100%;
             flex-wrap: nowrap;
+            background: rgba(20, 20, 30, 0.9);
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .control-btn {
@@ -119,6 +124,75 @@
         .control-btn.pause:hover { background: #c4a14c; }
         .control-btn.stop { background: #c55c5c; }
         .control-btn.stop:hover { background: #b35050; }
+        
+        /* Timeline sempre visibile */
+        .timeline-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            background: rgba(20, 20, 30, 0.9);
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .time-display {
+            font-size: 0.8rem;
+            color: #d4b15c;
+            font-family: monospace;
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(50, 50, 65, 0.9);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .progress-filled {
+            height: 100%;
+            background: #2a8c85;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 120px;
+        }
+        
+        .volume-slider {
+            flex: 1;
+            height: 4px;
+            background: rgba(50, 50, 65, 0.9);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #d4b15c;
+            cursor: pointer;
+        }
+        
+        .volume-icon {
+            color: #d4b15c;
+            font-size: 1rem;
+        }
         
         .search-box {
             background: rgba(30, 30, 45, 0.8);
@@ -511,6 +585,15 @@
                 flex: 1;
             }
             
+            .volume-control {
+                min-width: 100px;
+            }
+            
+            .time-display {
+                min-width: 80px;
+                font-size: 0.75rem;
+            }
+            
             .results-container {
                 grid-template-columns: 1fr;
             }
@@ -589,10 +672,26 @@
                     style="width:100%;height:100%;object-fit:contain">
                 </video>
             </div>
+            
+            <!-- Timeline sempre visibile -->
+            <div class="timeline-container">
+                <div class="time-display" id="currentTime">0:00</div>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-filled" id="progressFilled"></div>
+                </div>
+                <div class="time-display" id="durationTime">0:00</div>
+                
+                <div class="volume-control">
+                    <i class="fas fa-volume-up volume-icon" id="volumeIcon"></i>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+                </div>
+            </div>
+            
+            <!-- Controlli sempre visibili -->
             <div class="player-controls">
-                <button class="control-btn play" id="playBtn" title="Play"><i class="fas fa-play"></i></button>
-                <button class="control-btn pause" id="pauseBtn" title="Pausa"><i class="fas fa-pause"></i></button>
-                <button class="control-btn stop" id="stopBtn" title="Stop"><i class="fas fa-stop"></i></button>
+                <button class="control-btn play" id="playBtn" title="Play"><i class="fas fa-play"></i> Play</button>
+                <button class="control-btn pause" id="pauseBtn" title="Pausa"><i class="fas fa-pause"></i> Pausa</button>
+                <button class="control-btn stop" id="stopBtn" title="Stop"><i class="fas fa-stop"></i> Stop</button>
             </div>
         </div>
         
@@ -669,6 +768,14 @@
         const addCustomBtn = document.getElementById('addCustomBtn');
         const searchBox = document.getElementById('searchBox');
         
+        // Elementi timeline
+        const currentTimeDisplay = document.getElementById('currentTime');
+        const durationTimeDisplay = document.getElementById('durationTime');
+        const progressBar = document.getElementById('progressBar');
+        const progressFilled = document.getElementById('progressFilled');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeIcon = document.getElementById('volumeIcon');
+        
         // Variabili globali
         let currentResults = [];
         let currentPage = 1;
@@ -677,6 +784,7 @@
         let favorites = JSON.parse(localStorage.getItem('m3u8_favorites')) || [];
         let currentView = 'search';
         let currentChannelName = '';
+        let isSeeking = false;
         
         // Database di canali
         const CHANNEL_DATABASE = [
@@ -719,8 +827,34 @@
             }, 3000);
         }
 
+        // Formatta il tempo in minuti:secondi
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        // Aggiorna la timeline
+        function updateTimeline() {
+            if (!videoPlayer.duration || isSeeking) return;
+            
+            const currentTime = videoPlayer.currentTime;
+            const duration = videoPlayer.duration;
+            const progressPercent = (currentTime / duration) * 100;
+            
+            progressFilled.style.width = `${progressPercent}%`;
+            currentTimeDisplay.textContent = formatTime(currentTime);
+            
+            if (durationTimeDisplay.textContent === '0:00' && duration) {
+                durationTimeDisplay.textContent = formatTime(duration);
+            }
+        }
+
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
+            // Nascondi i controlli nativi del video
+            videoPlayer.controls = false;
+            
             // Gestori eventi player
             playBtn.addEventListener('click', function() {
                 if (videoPlayer.src) {
@@ -744,6 +878,39 @@
                 currentChannelTitle.textContent = '';
                 showToast('Riproduzione fermata', 'info');
             });
+
+            // Gestori timeline
+            videoPlayer.addEventListener('timeupdate', updateTimeline);
+            
+            videoPlayer.addEventListener('loadedmetadata', function() {
+                durationTimeDisplay.textContent = formatTime(videoPlayer.duration);
+            });
+            
+            // Cerca quando si clicca sulla barra di progresso
+            progressBar.addEventListener('click', function(e) {
+                if (!videoPlayer.duration) return;
+                
+                const rect = progressBar.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                videoPlayer.currentTime = percent * videoPlayer.duration;
+            });
+            
+            // Controllo volume
+            volumeSlider.addEventListener('input', function() {
+                videoPlayer.volume = volumeSlider.value;
+                
+                // Aggiorna icona volume
+                if (videoPlayer.volume == 0) {
+                    volumeIcon.className = 'fas fa-volume-mute volume-icon';
+                } else if (videoPlayer.volume < 0.5) {
+                    volumeIcon.className = 'fas fa-volume-down volume-icon';
+                } else {
+                    volumeIcon.className = 'fas fa-volume-up volume-icon';
+                }
+            });
+            
+            // Inizializza volume
+            videoPlayer.volume = volumeSlider.value;
 
             // Gestori tab
             searchTab.addEventListener('click', () => switchView('search'));
@@ -1119,6 +1286,11 @@
             if (hls) {
                 hls.destroy();
             }
+            
+            // Reset timeline
+            progressFilled.style.width = '0%';
+            currentTimeDisplay.textContent = '0:00';
+            durationTimeDisplay.textContent = '0:00';
             
             // Usa un approccio più semplice e compatibile
             if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
