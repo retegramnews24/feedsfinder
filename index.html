@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Feeds Finder</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Plyr CSS -->
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         * {
@@ -82,26 +80,9 @@
             aspect-ratio: 16/9;
         }
         
-        /* Plyr customization */
-        .plyr {
-            border-radius: 6px;
+        #videoPlayer {
+            width: 100%;
             height: 100%;
-        }
-        
-        .plyr__controls {
-            background: linear-gradient(transparent, rgba(0,0,0,0.7));
-        }
-        
-        .plyr__control--overlaid {
-            background: #2a8c85;
-        }
-        
-        .plyr__control--overlaid:hover {
-            background: #237a74;
-        }
-        
-        .plyr--fullscreen-active .plyr__controls {
-            border-radius: 0;
         }
         
         .search-box {
@@ -466,9 +447,14 @@
                 width: 100%;
             }
             
-            .search-form, .custom-url-form {
+            .search-form {
                 flex-wrap: nowrap;
                 overflow-x: auto;
+            }
+            
+            .custom-url-form {
+                flex-wrap: wrap;
+                gap: 6px;
             }
             
             .search-input, .search-btn,
@@ -483,7 +469,11 @@
             }
             
             .custom-url-input, .custom-name-input {
-                min-width: 120px;
+                min-width: 100%;
+            }
+            
+            .add-custom-btn {
+                min-width: 100%;
             }
             
             .favorites-controls, .result-actions {
@@ -564,7 +554,7 @@
                 <div class="current-channel-title" id="currentChannelTitle"></div>
             </div>
             <div class="video-container">
-                <video id="videoPlayer" playsinline controls>
+                <video id="videoPlayer" playsinline controls disablePictureInPicture="false">
                     <!-- Le sorgenti verranno impostate dinamicamente -->
                 </video>
             </div>
@@ -618,8 +608,6 @@
 
     <div id="toastContainer"></div>
 
-    <!-- Plyr JS -->
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <script>
         // Elementi DOM
         const searchForm = document.getElementById('searchForm');
@@ -650,7 +638,6 @@
         let favorites = JSON.parse(localStorage.getItem('m3u8_favorites')) || [];
         let currentView = 'search';
         let currentChannelName = '';
-        let player = null; // Per l'istanza Plyr
 
         // Funzione per mostrare toast notifications
         function showToast(message, type = 'info') {
@@ -671,53 +658,8 @@
             }, 3000);
         }
 
-        // Inizializzazione Plyr
-        function initializePlyr() {
-            player = new Plyr('#videoPlayer', {
-                controls: [
-                    'play-large', // Il pulsante play grande al centro
-                    'play', // Play/pause
-                    'progress', // Barra progresso
-                    'current-time', // Tempo corrente
-                    'duration', // Durata
-                    'mute', // Muto
-                    'volume', // Volume verticale
-                    'settings', // Impostazioni (se necessario)
-                    'pip', // Picture-in-picture (se supportato)
-                    'fullscreen', // Schermo intero
-                ],
-                settings: ['quality', 'speed'],
-                hideControls: false,
-            });
-
-            // Aggiungi un controllo personalizzato per stop
-            const stopButton = document.createElement('button');
-            stopButton.type = 'button';
-            stopButton.className = 'plyr__controls__item plyr__control';
-            stopButton.innerHTML = '<i class="fas fa-stop"></i>';
-            stopButton.setAttribute('aria-label', 'Stop');
-            stopButton.setAttribute('data-plyr', 'stop');
-
-            stopButton.addEventListener('click', function() {
-                player.pause();
-                player.currentTime = 0;
-            });
-
-            // Aggiungere il bottone ai controlli
-            const controls = player.elements.controls;
-            if (controls) {
-                // Inseriamo il bottone dopo il bottone play
-                const playButton = controls.querySelector('.plyr__control--play');
-                if (playButton) {
-                    playButton.parentNode.insertBefore(stopButton, playButton.nextSibling);
-                }
-            }
-        }
-
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
-            initializePlyr();
-
             // Gestori tab
             searchTab.addEventListener('click', () => switchView('search'));
             favoritesTab.addEventListener('click', () => switchView('favorites'));
@@ -1116,9 +1058,6 @@
                 // Formati direttamente supportati (mp4, webm, etc.)
                 videoPlayer.play();
             }
-            
-            // Riproduci il video con Plyr
-            player.play();
         }
 
         // Gestione Preferiti
