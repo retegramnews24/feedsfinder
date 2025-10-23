@@ -92,6 +92,7 @@
             gap: 4px;
             margin-top: 6px;
             width: 100%;
+            flex-wrap: nowrap;
         }
         
         .control-btn {
@@ -109,6 +110,7 @@
             align-items: center;
             justify-content: center;
             gap: 3px;
+            min-width: 0;
         }
         
         .control-btn.play { background: #2a8c85; }
@@ -169,6 +171,7 @@
             gap: 4px;
             background: #8a6bc9;
             white-space: nowrap;
+            min-width: fit-content;
         }
         
         .search-btn:hover { background: #7a5bb9; transform: translateY(-1px); }
@@ -224,6 +227,7 @@
             gap: 4px;
             background: #2a8c85;
             white-space: nowrap;
+            min-width: fit-content;
         }
         
         .add-custom-btn:hover { background: #237a74; transform: translateY(-1px); }
@@ -263,6 +267,7 @@
             gap: 4px;
             margin-bottom: 8px;
             width: 100%;
+            flex-wrap: nowrap;
         }
 
         .favorites-btn {
@@ -280,6 +285,7 @@
             align-items: center;
             justify-content: center;
             gap: 3px;
+            min-width: 0;
         }
 
         .favorites-btn.import { background: #2a8c85; }
@@ -383,6 +389,7 @@
             display: flex;
             gap: 3px;
             width: 100%;
+            flex-wrap: nowrap;
         }
         
         .action-btn {
@@ -399,6 +406,7 @@
             align-items: center;
             justify-content: center;
             gap: 2px;
+            min-width: 0;
         }
         
         .action-btn.copy { background: #2a8c85; color: white; }
@@ -485,12 +493,13 @@
                 margin-bottom: 6px;
             }
             
-            .player-controls {
-                flex-wrap: wrap;
+            .player-controls, .favorites-controls, .result-actions {
+                flex-wrap: nowrap;
             }
             
-            .control-btn {
-                min-width: calc(50% - 2px);
+            .control-btn, .favorites-btn, .action-btn {
+                min-width: 0;
+                flex: 1;
             }
             
             .results-container {
