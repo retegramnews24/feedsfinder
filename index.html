@@ -18,7 +18,7 @@
             background: linear-gradient(135deg, #1a1f3d, #3d1a1a, #2a240f);
             color: #f0f0f0;
             min-height: 100vh;
-            padding: 10px;
+            padding: 6px;
             overflow-x: hidden;
         }
         
@@ -27,23 +27,23 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
         }
         
         .fixed-top {
             position: sticky;
-            top: 10px;
+            top: 6px;
             z-index: 100;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
         }
         
         .player-section {
             background: rgba(30, 30, 45, 0.8);
             backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: 8px;
+            padding: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
@@ -52,23 +52,23 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         
         .player-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             color: #ffd166;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         
         .video-container {
             width: 100%;
             background: #000;
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             position: relative;
             aspect-ratio: 16/9;
         }
@@ -82,62 +82,44 @@
         
         .player-controls {
             display: flex;
-            gap: 10px;
-            margin-top: 12px;
+            gap: 8px;
+            margin-top: 8px;
         }
         
         .control-btn {
             flex: 1;
-            padding: 14px;
+            padding: 10px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             color: white;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1.1rem;
-            height: 50px;
+            font-size: 1rem;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
         }
         
-        /* Schema colori verticale - Colonna 1 */
-        .control-btn.play {
-            background: #2a8c85; /* Verde acqua */
-        }
-        
-        .control-btn.play:hover {
-            background: #237a74;
-        }
-        
-        .control-btn.pause {
-            background: #d4b15c; /* Oro */
-        }
-        
-        .control-btn.pause:hover {
-            background: #c4a14c;
-        }
-        
-        .control-btn.stop {
-            background: #c55c5c; /* Rosso */
-        }
-        
-        .control-btn.stop:hover {
-            background: #b35050;
-        }
+        .control-btn.play { background: #2a8c85; }
+        .control-btn.play:hover { background: #237a74; }
+        .control-btn.pause { background: #d4b15c; }
+        .control-btn.pause:hover { background: #c4a14c; }
+        .control-btn.stop { background: #c55c5c; }
+        .control-btn.stop:hover { background: #b35050; }
         
         .current-stream {
             background: rgba(20, 20, 30, 0.7);
-            padding: 10px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 6px;
             word-break: break-all;
             font-family: monospace;
-            font-size: 0.8rem;
-            margin-top: 12px;
+            font-size: 0.75rem;
+            margin-top: 8px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            max-height: 70px;
+            max-height: 60px;
             overflow-y: auto;
             color: #c8c8c8;
         }
@@ -145,85 +127,72 @@
         .search-box {
             background: rgba(30, 30, 45, 0.8);
             backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: 8px;
+            padding: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         
         .search-form {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             flex-wrap: wrap;
         }
         
         .search-input {
             flex: 1;
             min-width: 100%;
-            padding: 14px 16px;
+            padding: 10px 12px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             background: rgba(50, 50, 65, 0.9);
-            font-size: 1.1rem;
+            font-size: 1rem;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
             color: #f0f0f0;
             border: 1px solid rgba(255, 255, 255, 0.12);
         }
         
-        .search-input::placeholder {
-            color: #999;
-        }
+        .search-input::placeholder { color: #999; }
         
         .search-btn {
             width: 100%;
-            padding: 14px 25px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             color: white;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-            height: 50px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
+            background: #8a6bc9;
         }
         
-        /* Schema colori verticale - Colonna 2 */
-        .search-btn {
-            background: #8a6bc9; /* Viola */
-        }
-        
-        .search-btn:hover {
-            background: #7a5bb9;
-            transform: translateY(-2px);
-        }
-        
-        .search-btn:active {
-            transform: translateY(0);
-        }
+        .search-btn:hover { background: #7a5bb9; transform: translateY(-2px); }
+        .search-btn:active { transform: translateY(0); }
 
-        /* Tabs per Preferiti */
         .tabs-container {
             display: flex;
-            gap: 6px;
-            margin-bottom: 15px;
+            gap: 4px;
+            margin-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .tab {
             flex: 1;
-            padding: 10px 15px;
+            padding: 8px 12px;
             background: rgba(40, 40, 55, 0.8);
             border: none;
-            border-radius: 10px 10px 0 0;
+            border-radius: 8px 8px 0 0;
             color: #d0d0d0;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1rem;
+            font-size: 0.9rem;
             text-align: center;
         }
 
@@ -233,103 +202,82 @@
             color: #ffd166;
         }
 
-        .tab:hover:not(.active) {
-            background: rgba(60, 60, 75, 0.8);
-        }
+        .tab:hover:not(.active) { background: rgba(60, 60, 75, 0.8); }
 
-        /* Sezione Preferiti - Controlli allineati come player controls */
         .favorites-controls {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 6px;
+            margin-bottom: 10px;
         }
 
         .favorites-btn {
             flex: 1;
-            padding: 14px;
+            padding: 10px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             color: white;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1.1rem;
-            height: 50px;
+            font-size: 1rem;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
         }
 
-        /* Schema colori verticale - Colonna 3 */
-        .favorites-btn.import {
-            background: #2a8c85; /* Verde acqua */
-        }
-
-        .favorites-btn.import:hover {
-            background: #237a74;
-        }
-
-        .favorites-btn.export {
-            background: #d4b15c; /* Oro */
-        }
-
-        .favorites-btn.export:hover {
-            background: #c4a14c;
-        }
-
-        .favorites-btn.delete {
-            background: #c55c5c; /* Rosso */
-        }
-
-        .favorites-btn.delete:hover {
-            background: #b35050;
-        }
+        .favorites-btn.import { background: #2a8c85; }
+        .favorites-btn.import:hover { background: #237a74; }
+        .favorites-btn.export { background: #d4b15c; }
+        .favorites-btn.export:hover { background: #c4a14c; }
+        .favorites-btn.delete { background: #c55c5c; }
+        .favorites-btn.delete:hover { background: #b35050; }
         
         .results-section {
             background: rgba(30, 30, 45, 0.8);
             backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: 8px;
+            padding: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.08);
             flex: 1;
-            min-height: 500px;
+            min-height: 400px;
         }
         
         .results-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         
         .results-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             color: #ffd166;
         }
         
         .results-count {
             background: rgba(50, 50, 65, 0.9);
-            padding: 6px 12px;
-            border-radius: 18px;
-            font-size: 1.1rem;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 1rem;
             color: #d0d0d0;
         }
         
         .results-container {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 10px;
+            gap: 8px;
         }
         
         .result-card {
             background: rgba(35, 35, 50, 0.9);
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 8px;
+            padding: 8px;
             transition: all 0.3s ease;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            min-height: 130px;
+            min-height: 110px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -337,7 +285,7 @@
         
         .result-card:hover {
             background: rgba(45, 45, 60, 1);
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             border-color: rgba(255, 255, 255, 0.18);
         }
         
@@ -347,28 +295,26 @@
         }
         
         .channel-title {
-            font-size: 1.1rem;
-            margin-bottom: 6px;
+            font-size: 1rem;
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             color: #f5f5f5;
         }
         
-        .channel-icon {
-            color: #d4b15c;
-        }
+        .channel-icon { color: #d4b15c; }
         
         .m3u8-link {
             background: rgba(20, 20, 30, 0.7);
-            padding: 6px 8px;
-            border-radius: 6px;
+            padding: 4px 6px;
+            border-radius: 4px;
             word-break: break-all;
             font-family: monospace;
-            font-size: 0.8rem;
-            margin-bottom: 8px;
+            font-size: 0.7rem;
+            margin-bottom: 6px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            max-height: 35px;
+            max-height: 30px;
             overflow-y: auto;
             color: #b8b8b8;
             flex-grow: 1;
@@ -376,70 +322,37 @@
         
         .result-actions {
             display: flex;
-            gap: 6px;
+            gap: 4px;
         }
         
         .action-btn {
             flex: 1;
-            padding: 8px;
+            padding: 6px;
             border: none;
-            border-radius: 6px;
-            font-size: 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            height: 38px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 3px;
         }
         
-        /* Schema colori verticale - Colonna 4 */
-        .action-btn.copy {
-            background: #2a8c85; /* Verde acqua */
-            color: white;
-        }
+        .action-btn.copy { background: #2a8c85; color: white; }
+        .action-btn.copy:hover { background: #237a74; }
+        .action-btn.play { background: #8a6bc9; color: white; }
+        .action-btn.play:hover { background: #7a5bb9; }
+        .action-btn.favorite { background: #d4b15c; color: #2a2a2a; }
+        .action-btn.favorite:hover { background: #c4a14c; }
+        .action-btn.favorite.active { background: #c55c5c; color: white; }
         
-        .action-btn.copy:hover {
-            background: #237a74;
-        }
-        
-        .action-btn.play {
-            background: #8a6bc9; /* Viola */
-            color: white;
-        }
-        
-        .action-btn.play:hover {
-            background: #7a5bb9;
-        }
-
-        .action-btn.favorite {
-            background: #d4b15c; /* Oro */
-            color: #2a2a2a;
-        }
-
-        .action-btn.favorite:hover {
-            background: #c4a14c;
-        }
-
-        .action-btn.favorite.active {
-            background: #c55c5c; /* Rosso */
-            color: white;
-        }
-        
-        .loading {
+        .loading, .no-results {
             text-align: center;
-            padding: 25px;
-            font-size: 1.1rem;
-            grid-column: 1 / -1;
-            color: #c8c8c8;
-        }
-        
-        .no-results {
-            text-align: center;
-            padding: 25px;
-            font-size: 1.1rem;
+            padding: 20px;
+            font-size: 1rem;
             grid-column: 1 / -1;
             color: #c8c8c8;
         }
@@ -447,134 +360,54 @@
         .pagination {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 6px;
+            margin-top: 10px;
             grid-column: 1 / -1;
             flex-wrap: wrap;
         }
         
         .page-btn {
-            padding: 8px 15px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             background: rgba(50, 50, 65, 0.9);
             color: #d0d0d0;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1rem;
+            font-size: 0.9rem;
             border: 1px solid rgba(255, 255, 255, 0.12);
         }
         
-        .page-btn.active {
-            background: #8a6bc9; /* Viola */
-            color: white;
-        }
-        
-        .page-btn:hover:not(.active) {
-            background: rgba(70, 70, 85, 0.9);
-        }
+        .page-btn.active { background: #8a6bc9; color: white; }
+        .page-btn:hover:not(.active) { background: rgba(70, 70, 85, 0.9); }
 
-        /* Toast notifications */
         .toast {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
+            top: 15px;
+            right: 15px;
+            padding: 10px 16px;
             background: rgba(40, 40, 55, 0.95);
             color: #f0f0f0;
-            border-radius: 8px;
+            border-radius: 6px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             border-left: 4px solid #d4b15c;
             z-index: 1000;
             transform: translateX(400px);
             transition: transform 0.3s ease;
-            font-size: 1rem;
+            font-size: 0.9rem;
             max-width: 80%;
         }
 
-        .toast.show {
-            transform: translateX(0);
-        }
-
-        .toast.success {
-            border-left-color: #2a8c85;
-        }
-
-        .toast.error {
-            border-left-color: #c55c5c;
-        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { border-left-color: #2a8c85; }
+        .toast.error { border-left-color: #c55c5c; }
         
-        /* Mobile optimizations per Telegram */
         @media (min-width: 768px) {
-            .container {
-                max-width: 100%;
-            }
-            
-            .results-container {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            }
-            
-            .search-form {
-                flex-direction: row;
-            }
-            
-            .search-input {
-                min-width: 280px;
-            }
-            
-            .search-btn {
-                width: auto;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            body {
-                padding: 8px;
-            }
-            
-            .fixed-top {
-                top: 8px;
-            }
-            
-            .player-section, .search-box, .results-section {
-                padding: 12px;
-            }
-            
-            .video-container {
-                aspect-ratio: 16/9;
-            }
-            
-            .results-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .result-card {
-                padding: 8px;
-                min-height: 120px;
-            }
-            
-            .channel-title {
-                font-size: 1rem;
-            }
-
-            .tabs-container {
-                flex-wrap: wrap;
-            }
-
-            .tab {
-                flex: 1;
-                min-width: 140px;
-                text-align: center;
-            }
-
-            .player-controls, .favorites-controls {
-                flex-wrap: wrap;
-            }
-
-            .control-btn, .favorites-btn {
-                font-size: 1rem;
-                padding: 12px 8px;
-            }
+            .container { max-width: 100%; }
+            .results-container { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+            .search-form { flex-direction: row; }
+            .search-input { min-width: 280px; }
+            .search-btn { width: auto; }
         }
     </style>
 </head>
@@ -614,7 +447,6 @@
                 <button class="tab" id="favoritesTab">Preferiti</button>
             </div>
 
-            <!-- I controlli preferiti sono visibili SOLO nella vista Preferiti -->
             <div class="favorites-controls" id="favoritesControls" style="display: none;">
                 <button class="favorites-btn import" id="importFavoritesBtn">
                     <i class="fas fa-file-import"></i> Importa
@@ -638,9 +470,7 @@
                 </div>
             </div>
             
-            <div class="pagination" id="pagination">
-                <!-- I pulsanti di paginazione verranno inseriti qui dinamicamente -->
-            </div>
+            <div class="pagination" id="pagination"></div>
         </div>
     </div>
 
@@ -673,9 +503,9 @@
         const resultsPerPage = 15;
         let hls = null;
         let favorites = JSON.parse(localStorage.getItem('m3u8_favorites')) || [];
-        let currentView = 'search'; // Vista iniziale: ricerca
+        let currentView = 'search';
         
-        // Database di canali esteso
+        // Database di canali
         const CHANNEL_DATABASE = [
             { name: "Rai 1", categories: ["entertainment", "news"], country: "it" },
             { name: "Rai 2", categories: ["entertainment", "sports"], country: "it" },
@@ -694,22 +524,7 @@
             { name: "BBC News", categories: ["news"], country: "uk" },
             { name: "Rai Movie", categories: ["movies"], country: "it" },
             { name: "Sky Cinema", categories: ["movies"], country: "it" },
-            { name: "Cine34", categories: ["movies"], country: "it" },
-            { name: "Rai 4", categories: ["entertainment"], country: "it" },
-            { name: "Rai 5", categories: ["entertainment"], country: "it" },
-            { name: "TV8", categories: ["entertainment"], country: "it" },
-            { name: "Rai Yoyo", categories: ["kids"], country: "it" },
-            { name: "Cartoon Network", categories: ["kids"], country: "us" },
-            { name: "Boing", categories: ["kids"], country: "it" },
-            { name: "Rai Radio", categories: ["music"], country: "it" },
-            { name: "MTV", categories: ["music"], country: "us" },
-            { name: "Virgin Radio", categories: ["music"], country: "it" },
-            { name: "BBC One", categories: ["entertainment"], country: "uk" },
-            { name: "BBC Two", categories: ["entertainment"], country: "uk" },
-            { name: "TF1", categories: ["entertainment"], country: "fr" },
-            { name: "ARD", categories: ["entertainment"], country: "de" },
-            { name: "ZDF", categories: ["entertainment"], country: "de" },
-            { name: "TVE", categories: ["entertainment"], country: "es" }
+            { name: "Cine34", categories: ["movies"], country: "it" }
         ];
 
         // Funzione per mostrare toast notifications
@@ -733,7 +548,6 @@
 
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
-            // Gestori eventi player
             playBtn.addEventListener('click', function() {
                 if (videoPlayer.src) {
                     videoPlayer.play();
@@ -757,16 +571,13 @@
                 showToast('Riproduzione fermata', 'info');
             });
 
-            // Gestori tab
             searchTab.addEventListener('click', () => switchView('search'));
             favoritesTab.addEventListener('click', () => switchView('favorites'));
 
-            // Gestori preferiti
             importFavoritesBtn.addEventListener('click', importFavorites);
             exportFavoritesBtn.addEventListener('click', exportFavorites);
             clearFavoritesBtn.addEventListener('click', clearFavorites);
 
-            // Inizializza la vista ricerca
             switchView('search');
         });
         
@@ -953,12 +764,12 @@
                 const favoriteBtnTitle = isFavorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti';
                 
                 const qualityBadge = result.quality === 'HD' || result.quality === 'FHD' ? 
-                    `<span style="color:#d4b15c; margin-left:5px; background:rgba(255,255,255,0.12); padding:3px 8px; border-radius:12px; font-size:0.85rem;">
+                    `<span style="color:#d4b15c; margin-left:5px; background:rgba(255,255,255,0.12); padding:2px 6px; border-radius:10px; font-size:0.75rem;">
                         <i class="fas fa-hd-tv"></i> ${result.quality}
                     </span>` : '';
                 
                 const countryBadge = result.country ? 
-                    `<span style="margin-left:5px; background:rgba(255,255,255,0.12); padding:3px 8px; border-radius:12px; font-size:0.85rem;">
+                    `<span style="margin-left:5px; background:rgba(255,255,255,0.12); padding:2px 6px; border-radius:10px; font-size:0.75rem;">
                         <i class="fas fa-globe"></i> ${result.country.toUpperCase()}
                     </span>` : '';
                 
@@ -1028,7 +839,7 @@
                 } else if (i === currentPage - 2 || i === currentPage + 2) {
                     const ellipsis = document.createElement('span');
                     ellipsis.textContent = '...';
-                    ellipsis.style.padding = '8px 5px';
+                    ellipsis.style.padding = '6px 4px';
                     pagination.appendChild(ellipsis);
                 }
             }
@@ -1178,7 +989,6 @@
             searchTab.classList.toggle('active', view === 'search');
             favoritesTab.classList.toggle('active', view === 'favorites');
             
-            // CORRETTO: Mostra i controlli preferiti SOLO nella vista Preferiti
             favoritesControls.style.display = view === 'favorites' ? 'flex' : 'none';
             
             resultsTitle.textContent = view === 'search' ? 'Risultati Ricerca' : 'Canali Preferiti';
