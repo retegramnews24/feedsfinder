@@ -149,7 +149,6 @@
             color: #f0f0f0;
             border: 1px solid rgba(255, 255, 255, 0.12);
             min-width: 0;
-            width: 100%;
         }
         
         .search-input::placeholder { color: #999; }
@@ -472,6 +471,19 @@
         .toast.success { border-left-color: #2a8c85; }
         .toast.error { border-left-color: #c55c5c; }
         
+        /* Miglioramenti per il player video */
+        .video-player-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .video-js {
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+        }
+        
         /* Ottimizzazioni per mobile */
         @media (max-width: 768px) {
             body {
@@ -484,13 +496,23 @@
             }
             
             .search-form, .custom-url-form {
-                flex-wrap: wrap;
+                flex-wrap: nowrap;
+                overflow-x: auto;
             }
             
             .search-input, .search-btn,
             .custom-url-input, .custom-name-input, .add-custom-btn {
-                min-width: 100%;
-                margin-bottom: 6px;
+                min-width: 0;
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+            
+            .search-input {
+                min-width: 150px;
+            }
+            
+            .custom-url-input, .custom-name-input {
+                min-width: 120px;
             }
             
             .player-controls, .favorites-controls, .result-actions {
@@ -560,6 +582,8 @@
             }
         }
     </style>
+    <!-- Video.js CSS -->
+    <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
 </head>
 <body>
     <div class="container">
@@ -571,7 +595,18 @@
                 <div class="current-channel-title" id="currentChannelTitle"></div>
             </div>
             <div class="video-container">
-                <video id="videoPlayer" controls></video>
+                <video 
+                    id="videoPlayer"
+                    class="video-js vjs-default-skin vjs-big-play-centered"
+                    controls
+                    preload="auto"
+                    playsinline
+                    webkit-playsinline
+                    data-setup='{"fluid": true, "aspectRatio": "16:9"}'>
+                    <p class="vjs-no-js">
+                        Per visualizzare questo video abilita JavaScript e considera l'aggiornamento a un browser che supporta HTML5 video.
+                    </p>
+                </video>
             </div>
             <div class="player-controls">
                 <button class="control-btn play" id="playBtn" title="Play"><i class="fas fa-play"></i></button>
@@ -628,6 +663,8 @@
 
     <div id="toastContainer"></div>
 
+    <!-- Video.js Script -->
+    <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
     <script>
         // Elementi DOM
         const searchForm = document.getElementById('searchForm');
@@ -661,6 +698,7 @@
         let favorites = JSON.parse(localStorage.getItem('m3u8_favorites')) || [];
         let currentView = 'search';
         let currentChannelName = '';
+        let player = null;
         
         // Database di canali
         const CHANNEL_DATABASE = [
@@ -684,6 +722,24 @@
             { name: "Cine34", categories: ["movies"], country: "it" }
         ];
 
+        // Inizializzazione Video.js player
+        function initializeVideoPlayer() {
+            player = videojs('videoPlayer', {
+                fluid: true,
+                aspectRatio: '16:9',
+                playbackRates: [0.5, 1, 1.5, 2],
+                controls: true,
+                userActions: {
+                    hotkeys: true
+                }
+            });
+            
+            // Gestione errori del player
+            player.on('error', function() {
+                showToast('Errore nel caricamento del video', 'error');
+            });
+        }
+
         // Funzione per mostrare toast notifications
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
@@ -705,28 +761,35 @@
 
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
+            // Inizializza il player Video.js
+            initializeVideoPlayer();
+            
             // Gestori eventi player
             playBtn.addEventListener('click', function() {
-                if (videoPlayer.src) {
-                    videoPlayer.play();
+                if (player && player.src()) {
+                    player.play();
                     showToast('Riproduzione avviata', 'success');
                 }
             });
             
             pauseBtn.addEventListener('click', function() {
-                videoPlayer.pause();
-                showToast('Riproduzione in pausa', 'info');
+                if (player) {
+                    player.pause();
+                    showToast('Riproduzione in pausa', 'info');
+                }
             });
             
             stopBtn.addEventListener('click', function() {
-                videoPlayer.pause();
-                videoPlayer.currentTime = 0;
-                if (hls) {
-                    hls.destroy();
-                    hls = null;
+                if (player) {
+                    player.pause();
+                    player.currentTime(0);
+                    if (hls) {
+                        hls.destroy();
+                        hls = null;
+                    }
+                    currentChannelTitle.textContent = '';
+                    showToast('Riproduzione fermata', 'info');
                 }
-                currentChannelTitle.textContent = '';
-                showToast('Riproduzione fermata', 'info');
             });
 
             // Gestori tab
@@ -1104,33 +1167,19 @@
                 hls.destroy();
             }
             
-            if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                videoPlayer.src = url;
-                videoPlayer.play().catch(e => {
-                    console.error('Errore riproduzione:', e);
-                    showToast('Impossibile riprodurre lo stream', 'error');
+            // Usa Video.js per la riproduzione
+            if (player) {
+                player.src({
+                    src: url,
+                    type: 'application/x-mpegURL'
                 });
-            } else if (Hls.isSupported()) {
-                hls = new Hls({
-                    debug: false,
-                    enableWorker: false
-                });
-                hls.loadSource(url);
-                hls.attachMedia(videoPlayer);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    videoPlayer.play().catch(e => {
+                
+                player.ready(function() {
+                    player.play().catch(e => {
                         console.error('Errore riproduzione:', e);
                         showToast('Impossibile riprodurre lo stream', 'error');
                     });
                 });
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                    console.error('HLS error:', data);
-                    if (data.fatal) {
-                        showToast('Errore nel caricamento dello stream', 'error');
-                    }
-                });
-            } else {
-                showToast('Browser non supporta riproduzione HLS', 'error');
             }
         }
 
