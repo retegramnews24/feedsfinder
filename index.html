@@ -20,6 +20,7 @@
             min-height: 100vh;
             padding: 4px;
             overflow-x: hidden;
+            width: 100%;
         }
         
         .container {
@@ -40,6 +41,7 @@
             padding: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 100%;
         }
         
         .player-header {
@@ -47,6 +49,7 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 6px;
+            width: 100%;
         }
         
         .player-title {
@@ -88,6 +91,7 @@
             display: flex;
             gap: 4px;
             margin-top: 6px;
+            width: 100%;
         }
         
         .control-btn {
@@ -113,10 +117,6 @@
         .control-btn.pause:hover { background: #c4a14c; }
         .control-btn.stop { background: #c55c5c; }
         .control-btn.stop:hover { background: #b35050; }
-        .control-btn.pip { background: #8a6bc9; }
-        .control-btn.pip:hover { background: #7a5bb9; }
-        .control-btn.fullscreen { background: #2a8c85; }
-        .control-btn.fullscreen:hover { background: #237a74; }
         
         .search-box {
             background: rgba(30, 30, 45, 0.8);
@@ -125,6 +125,7 @@
             padding: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 100%;
         }
         
         .search-form {
@@ -132,6 +133,7 @@
             gap: 6px;
             flex-wrap: nowrap;
             margin-bottom: 8px;
+            width: 100%;
         }
         
         .search-input {
@@ -145,6 +147,7 @@
             color: #f0f0f0;
             border: 1px solid rgba(255, 255, 255, 0.12);
             min-width: 0;
+            width: 100%;
         }
         
         .search-input::placeholder { color: #999; }
@@ -175,6 +178,7 @@
             display: flex;
             gap: 6px;
             flex-wrap: nowrap;
+            width: 100%;
         }
         
         .custom-url-input {
@@ -230,6 +234,7 @@
             gap: 2px;
             margin-bottom: 8px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            width: 100%;
         }
 
         .tab {
@@ -257,6 +262,7 @@
             display: flex;
             gap: 4px;
             margin-bottom: 8px;
+            width: 100%;
         }
 
         .favorites-btn {
@@ -292,6 +298,7 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             flex: 1;
             min-height: 350px;
+            width: 100%;
         }
         
         .results-header {
@@ -299,6 +306,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
+            width: 100%;
         }
         
         .results-title {
@@ -318,6 +326,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 6px;
+            width: 100%;
         }
         
         .result-card {
@@ -330,6 +339,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            width: 100%;
         }
         
         .result-card:hover {
@@ -372,6 +382,7 @@
         .result-actions {
             display: flex;
             gap: 3px;
+            width: 100%;
         }
         
         .action-btn {
@@ -404,6 +415,7 @@
             font-size: 0.85rem;
             grid-column: 1 / -1;
             color: #c8c8c8;
+            width: 100%;
         }
         
         .pagination {
@@ -413,6 +425,7 @@
             margin-top: 8px;
             grid-column: 1 / -1;
             flex-wrap: wrap;
+            width: 100%;
         }
         
         .page-btn {
@@ -451,73 +464,17 @@
         .toast.success { border-left-color: #2a8c85; }
         .toast.error { border-left-color: #c55c5c; }
         
-        /* Stili per modalità tutto schermo */
-        .fullscreen-mode {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #000;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .fullscreen-video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .fullscreen-controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 8px;
-        }
-        
-        .fullscreen-channel-name {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: #ffd166;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 1rem;
-            max-width: 80%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .exit-fullscreen {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-        
         /* Ottimizzazioni per mobile */
         @media (max-width: 768px) {
+            body {
+                padding: 4px;
+            }
+            
+            .container {
+                gap: 4px;
+                width: 100%;
+            }
+            
             .search-form, .custom-url-form {
                 flex-wrap: wrap;
             }
@@ -536,8 +493,8 @@
                 min-width: calc(50% - 2px);
             }
             
-            .pip-btn, .fullscreen-btn {
-                display: flex !important;
+            .results-container {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -611,8 +568,6 @@
                 <button class="control-btn play" id="playBtn" title="Play"><i class="fas fa-play"></i></button>
                 <button class="control-btn pause" id="pauseBtn" title="Pausa"><i class="fas fa-pause"></i></button>
                 <button class="control-btn stop" id="stopBtn" title="Stop"><i class="fas fa-stop"></i></button>
-                <button class="control-btn pip" id="pipBtn" title="Picture-in-Picture"><i class="fas fa-compress"></i></button>
-                <button class="control-btn fullscreen" id="fullscreenBtn" title="Tutto Schermo"><i class="fas fa-expand"></i></button>
             </div>
         </div>
         
@@ -676,8 +631,6 @@
         const playBtn = document.getElementById('playBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const stopBtn = document.getElementById('stopBtn');
-        const pipBtn = document.getElementById('pipBtn');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
         const pagination = document.getElementById('pagination');
         const searchTab = document.getElementById('searchTab');
         const favoritesTab = document.getElementById('favoritesTab');
@@ -699,8 +652,6 @@
         let favorites = JSON.parse(localStorage.getItem('m3u8_favorites')) || [];
         let currentView = 'search';
         let currentChannelName = '';
-        let isFullscreen = false;
-        let fullscreenContainer = null;
         
         // Database di canali
         const CHANNEL_DATABASE = [
@@ -769,12 +720,6 @@
                 showToast('Riproduzione fermata', 'info');
             });
 
-            // Picture-in-Picture
-            pipBtn.addEventListener('click', togglePictureInPicture);
-
-            // Tutto Schermo
-            fullscreenBtn.addEventListener('click', toggleFullscreen);
-
             // Gestori tab
             searchTab.addEventListener('click', () => switchView('search'));
             favoritesTab.addEventListener('click', () => switchView('favorites'));
@@ -790,134 +735,6 @@
             // Inizializza la vista ricerca
             switchView('search');
         });
-        
-        // Gestione Picture-in-Picture
-        function togglePictureInPicture() {
-            if (!videoPlayer.src) {
-                showToast('Nessun video in riproduzione', 'error');
-                return;
-            }
-            
-            // Verifica supporto PiP per mobile
-            if (!document.pictureInPictureEnabled) {
-                showToast('Picture-in-Picture non supportato su questo dispositivo', 'error');
-                return;
-            }
-            
-            if (document.pictureInPictureElement) {
-                document.exitPictureInPicture()
-                    .then(() => {
-                        pipBtn.innerHTML = '<i class="fas fa-compress"></i>';
-                        showToast('Picture-in-Picture disattivato', 'info');
-                    })
-                    .catch(error => {
-                        console.error('Errore nell\'uscita dalla modalità PiP:', error);
-                        showToast('Errore nell\'uscita da Picture-in-Picture', 'error');
-                    });
-            } else {
-                videoPlayer.requestPictureInPicture()
-                    .then(() => {
-                        pipBtn.innerHTML = '<i class="fas fa-expand"></i>';
-                        showToast('Picture-in-Picture attivato', 'success');
-                    })
-                    .catch(error => {
-                        console.error('Errore nella richiesta PiP:', error);
-                        showToast('Picture-in-Picture non supportato', 'error');
-                    });
-            }
-        }
-        
-        // Gestione Tutto Schermo
-        function toggleFullscreen() {
-            if (!videoPlayer.src) {
-                showToast('Nessun video in riproduzione', 'error');
-                return;
-            }
-            
-            if (isFullscreen) {
-                exitFullscreen();
-            } else {
-                enterFullscreen();
-            }
-        }
-        
-        function enterFullscreen() {
-            // Crea un container per il fullscreen
-            fullscreenContainer = document.createElement('div');
-            fullscreenContainer.className = 'fullscreen-mode';
-            
-            // Clona il video player
-            const fullscreenVideo = videoPlayer.cloneNode(true);
-            fullscreenVideo.className = 'fullscreen-video';
-            fullscreenVideo.controls = true;
-            
-            // Aggiungi il nome del canale
-            const channelName = document.createElement('div');
-            channelName.className = 'fullscreen-channel-name';
-            channelName.textContent = currentChannelName || 'Feeds Finder';
-            
-            // Aggiungi controlli
-            const controls = document.createElement('div');
-            controls.className = 'fullscreen-controls';
-            
-            const playBtnFull = document.createElement('button');
-            playBtnFull.className = 'control-btn play';
-            playBtnFull.innerHTML = '<i class="fas fa-play"></i>';
-            playBtnFull.addEventListener('click', () => fullscreenVideo.play());
-            
-            const pauseBtnFull = document.createElement('button');
-            pauseBtnFull.className = 'control-btn pause';
-            pauseBtnFull.innerHTML = '<i class="fas fa-pause"></i>';
-            pauseBtnFull.addEventListener('click', () => fullscreenVideo.pause());
-            
-            const pipBtnFull = document.createElement('button');
-            pipBtnFull.className = 'control-btn pip';
-            pipBtnFull.innerHTML = '<i class="fas fa-compress"></i>';
-            pipBtnFull.addEventListener('click', () => {
-                if (document.pictureInPictureElement === fullscreenVideo) {
-                    document.exitPictureInPicture();
-                } else {
-                    fullscreenVideo.requestPictureInPicture();
-                }
-            });
-            
-            const exitBtn = document.createElement('button');
-            exitBtn.className = 'exit-fullscreen';
-            exitBtn.innerHTML = '<i class="fas fa-times"></i>';
-            exitBtn.addEventListener('click', exitFullscreen);
-            
-            // Assembla il tutto
-            controls.appendChild(playBtnFull);
-            controls.appendChild(pauseBtnFull);
-            controls.appendChild(pipBtnFull);
-            
-            fullscreenContainer.appendChild(fullscreenVideo);
-            fullscreenContainer.appendChild(channelName);
-            fullscreenContainer.appendChild(controls);
-            fullscreenContainer.appendChild(exitBtn);
-            
-            // Aggiungi al body
-            document.body.appendChild(fullscreenContainer);
-            
-            // Riproduci il video
-            setTimeout(() => {
-                fullscreenVideo.play().catch(e => console.error('Errore riproduzione fullscreen:', e));
-            }, 100);
-            
-            isFullscreen = true;
-            fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
-            showToast('Modalità tutto schermo attivata', 'success');
-        }
-        
-        function exitFullscreen() {
-            if (fullscreenContainer && document.body.contains(fullscreenContainer)) {
-                document.body.removeChild(fullscreenContainer);
-            }
-            
-            isFullscreen = false;
-            fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
-            showToast('Modalità tutto schermo disattivata', 'info');
-        }
         
         // Gestione ricerca
         searchForm.addEventListener('submit', function(e) {
