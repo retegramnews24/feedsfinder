@@ -931,6 +931,7 @@
         let currentView = 'search';
         let currentChannelName = '';
         let player = null; // Per l'istanza Plyr
+        let randomChannelAttempts = 0;
 
         // Funzione per mostrare toast notifications
         function showToast(message, type = 'info') {
@@ -1049,26 +1050,104 @@
 
         // Funzione per riprodurre un canale casuale
         function playRandomChannel() {
-            // Ottieni tutti i canali disponibili
-            const availableChannels = Object.keys(CHANNEL_URLS);
+            randomChannelAttempts++;
+            showToast('Ricerca di un canale casuale in corso...', 'info');
             
-            if (availableChannels.length === 0) {
-                showToast('Nessun canale disponibile', 'error');
-                return;
+            // Prova a recuperare canali da repository online
+            fetchRandomChannelFromAPI()
+                .then(channel => {
+                    // Reset dei tentativi
+                    randomChannelAttempts = 0;
+                    
+                    // Riproduci il canale trovato
+                    const randomId = 'random-' + channel.title.replace(/\s+/g, '-').toLowerCase();
+                    playStream(channel.url, channel.title, randomId);
+                    showToast(`Canale casuale: ${channel.title}`, 'success');
+                })
+                .catch(error => {
+                    console.error('Errore nel recupero del canale casuale:', error);
+                    
+                    // Se non funziona dopo 2 secondi, riprova
+                    if (randomChannelAttempts < 3) { // Limite a 3 tentativi
+                        showToast(`Tentativo ${randomChannelAttempts} fallito. Nuovo tentativo...`, 'error');
+                        setTimeout(playRandomChannel, 2000);
+                    } else {
+                        showToast('Impossibile trovare un canale casuale. Riprova più tardi.', 'error');
+                        randomChannelAttempts = 0;
+                    }
+                });
+        }
+
+        // Funzione per recuperare un canale casuale da API online
+        async function fetchRandomChannelFromAPI() {
+            // Lista di repository IPTV pubblici
+            const repositories = [
+                'https://iptv-org.github.io/api/streams.json',
+                'https://iptv-org.github.io/api/channels.json',
+                'https://raw.githubusercontent.com/iptv-org/iptv/master/streams.m3u'
+            ];
+            
+            // Scegli un repository casuale
+            const randomRepo = repositories[Math.floor(Math.random() * repositories.length)];
+            
+            try {
+                const response = await fetch(randomRepo);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                let data;
+                if (randomRepo.endsWith('.json')) {
+                    data = await response.json();
+                } else {
+                    // Parsing di file M3U
+                    const m3uContent = await response.text();
+                    data = parseM3U(m3uContent);
+                }
+                
+                // Se non ci sono canali, lancia un errore
+                if (!data || data.length === 0) {
+                    throw new Error('No channels found');
+                }
+                
+                // Scegli un canale casuale
+                const randomIndex = Math.floor(Math.random() * data.length);
+                const randomChannel = data[randomIndex];
+                
+                // Restituisci il canale in formato standard
+                return {
+                    title: randomChannel.name || randomChannel.title || 'Canale Sconosciuto',
+                    url: randomChannel.url || randomChannel.link
+                };
+            } catch (error) {
+                throw new Error(`Failed to fetch from ${randomRepo}: ${error.message}`);
+            }
+        }
+
+        // Funzione per parsare file M3U
+        function parseM3U(m3uContent) {
+            const lines = m3uContent.split('\n');
+            const channels = [];
+            let currentChannel = {};
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                if (line.startsWith('#EXTINF:')) {
+                    // Estrai informazioni dal tag EXTINF
+                    const info = line.substring(8).split(',');
+                    currentChannel = {
+                        title: info[1] || 'Unknown Channel'
+                    };
+                } else if (line.startsWith('http')) {
+                    // Questa è l'URL del canale
+                    currentChannel.url = line;
+                    channels.push(currentChannel);
+                    currentChannel = {};
+                }
             }
             
-            // Seleziona un canale casuale
-            const randomIndex = Math.floor(Math.random() * availableChannels.length);
-            const randomChannelName = availableChannels[randomIndex];
-            const randomChannelUrl = CHANNEL_URLS[randomChannelName];
-            
-            // Crea un ID univoco per il canale casuale
-            const randomId = 'random-' + randomChannelName.replace(/\s+/g, '-').toLowerCase();
-            
-            // Riproduci il canale
-            playStream(randomChannelUrl, randomChannelName, randomId);
-            
-            showToast(`Canale casuale: ${randomChannelName}`, 'success');
+            return channels;
         }
 
         // Inizializzazione
