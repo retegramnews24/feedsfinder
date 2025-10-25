@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
+        /* I tuoi stili CSS rimangono invariati */
         * {
             margin: 0;
             padding: 0;
@@ -823,6 +824,60 @@
                 if (playButton) {
                     playButton.parentNode.insertBefore(stopButton, playButton.nextSibling);
                 }
+            }
+
+            // Gestione PIP personalizzata per garantire il funzionamento
+            if (document.pictureInPictureEnabled) {
+                // Aggiungi gestore per il click sul bottone PIP
+                player.on('pip', function() {
+                    togglePictureInPicture();
+                });
+                
+                // Gestisci quando la PIP viene chiusa dal browser
+                videoPlayer.addEventListener('leavepictureinpicture', function() {
+                    player.elements.container.classList.remove('plyr--pip');
+                });
+            } else {
+                // Nascondi il bottone PIP se non supportato
+                const pipButton = player.elements.controls.querySelector('[data-plyr="pip"]');
+                if (pipButton) {
+                    pipButton.style.display = 'none';
+                }
+            }
+        }
+
+        // Funzione per attivare/disattivare Picture-in-Picture
+        function togglePictureInPicture() {
+            if (!document.pictureInPictureEnabled) {
+                showToast('Picture-in-Picture non supportato dal tuo browser', 'error');
+                return;
+            }
+            
+            try {
+                if (document.pictureInPictureElement) {
+                    document.exitPictureInPicture()
+                        .then(() => {
+                            player.elements.container.classList.remove('plyr--pip');
+                            showToast('Picture-in-Picture disattivato', 'info');
+                        })
+                        .catch(error => {
+                            console.error('Errore nell\'uscire dalla PIP:', error);
+                            showToast('Errore PIP', 'error');
+                        });
+                } else {
+                    videoPlayer.requestPictureInPicture()
+                        .then(() => {
+                            player.elements.container.classList.add('plyr--pip');
+                            showToast('Picture-in-Picture attivato', 'success');
+                        })
+                        .catch(error => {
+                            console.error('Errore nell\'attivare la PIP:', error);
+                            showToast('Errore PIP', 'error');
+                        });
+                }
+            } catch (error) {
+                console.error('Errore PIP:', error);
+                showToast('Errore PIP', 'error');
             }
         }
 
