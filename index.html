@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Iunior TV - Lettore Streaming</title>
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -20,7 +20,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             padding: 10px;
             transform: scale(0.85);
             transform-origin: center top;
@@ -70,12 +69,93 @@
         .player-wrapper {
             position: relative;
             width: 100%;
+            background: #000;
         }
         
-        #player {
+        #videoElement {
             width: 100%;
             height: auto;
-            border-radius: 0;
+            display: block;
+            background: #000;
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .player-wrapper:hover .controls,
+        .player-wrapper:active .controls {
+            opacity: 1;
+        }
+        
+        .control-btn {
+            background: rgba(22, 33, 62, 0.7);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .progress-container {
+            flex-grow: 1;
+            height: 5px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 5px;
+            margin: 0 10px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #4361ee;
+            border-radius: 5px;
+            width: 0%;
+        }
+        
+        .time {
+            font-size: 0.8rem;
+            color: white;
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .volume-container {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+        
+        .volume-slider {
+            width: 80px;
+            height: 5px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 5px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .volume-level {
+            height: 100%;
+            background: #4cc9f0;
+            border-radius: 5px;
+            width: 100%;
         }
         
         .info-panel {
@@ -150,29 +230,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .controls-info {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .control-item {
-            display: flex;
-            align-items: center;
-            background: rgba(22, 33, 62, 0.6);
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-        }
-        
-        .control-icon {
-            margin-right: 5px;
-            font-size: 0.9rem;
-        }
-        
-        .custom-fullscreen {
+        .fullscreen-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -183,7 +241,7 @@
             display: none;
         }
         
-        .custom-fullscreen video {
+        .fullscreen-video {
             width: 100%;
             height: 100%;
             object-fit: contain;
@@ -197,9 +255,9 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
             z-index: 10001;
             cursor: pointer;
         }
@@ -233,29 +291,20 @@
                 margin-right: 0;
             }
             
-            .controls-info {
-                gap: 8px;
+            .control-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
             }
             
-            .control-item {
+            .time {
+                min-width: 80px;
                 font-size: 0.7rem;
-                padding: 4px 8px;
             }
-        }
-        
-        /* Personalizzazione Plyr */
-        .plyr {
-            --plyr-color-main: #4361ee;
-            --plyr-control-radius: 8px;
-        }
-        
-        .plyr--full-ui.plyr--video .plyr__control--overlaid {
-            background: rgba(22, 33, 62, 0.7);
-            border: 2px solid #4cc9f0;
-        }
-        
-        .plyr--video .plyr__controls {
-            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            
+            .volume-slider {
+                width: 60px;
+            }
         }
     </style>
 </head>
@@ -269,12 +318,26 @@
             
             <div class="player-wrapper">
                 <video 
-                    id="player"
+                    id="videoElement"
                     playsinline
-                    controls
+                    webkit-playsinline
                     poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwMCIgaGVpZ2h0PSI5MDAiIHZpZXdCb3g9IjAgMCAxNjAwIDkwMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjE2MDAiIGhlaWdodD0iOTAwIiBmaWxsPSIjMUEyMDNDIi8+CjxwYXRoIGQ9Ik02MDAgNDUwTDEwMDAgMzAwVjYwMEw2MDAgNDUwWiIgZmlsbD0iIzQzNjFFRSIvPgo8L3N2Zz4K">
-                    <source src="https://5f22d76e220e1.streamlock.net/iuniortv/iuniortv/playlist.m3u8" type="application/x-mpegURL">
                 </video>
+                
+                <div class="controls">
+                    <button class="control-btn" id="playPauseBtn">⏯️</button>
+                    <div class="progress-container" id="progressContainer">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="time" id="timeDisplay">00:00 / 00:00</div>
+                    <div class="volume-container">
+                        <button class="control-btn" id="muteBtn">🔊</button>
+                        <div class="volume-slider" id="volumeSlider">
+                            <div class="volume-level" id="volumeLevel"></div>
+                        </div>
+                    </div>
+                    <button class="control-btn" id="fullscreenBtn">⛶</button>
+                </div>
             </div>
             
             <div class="info-panel">
@@ -296,99 +359,179 @@
                 <div class="instructions">
                     <h3>Istruzioni</h3>
                     <ul>
-                        <li>Per una riproduzione ottimale, utilizza una connessione Wi-Fi o dati stabile</li>
-                        <li>Il lettore si adatta automaticamente alla qualità del tuo dispositivo</li>
-                        <li>Per ingrandire a schermo intero, tocca l'icona nell'angolo in basso a destra</li>
-                        <li>Il video si riprodurrà automaticamente quando la connessione è pronta</li>
+                        <li>Tocca il video per mostrare/nascondere i controlli</li>
+                        <li>Usa il pulsante schermo intero per una visualizzazione migliore</li>
+                        <li>Il video si avvia automaticamente quando è pronto</li>
+                        <li>Per una riproduzione ottimale, usa una connessione stabile</li>
                     </ul>
-                </div>
-                
-                <div class="controls-info">
-                    <div class="control-item">
-                        <span class="control-icon">⏯️</span>
-                        <span>Play/Pausa</span>
-                    </div>
-                    <div class="control-item">
-                        <span class="control-icon">⏩</span>
-                        <span>Scorri avanti</span>
-                    </div>
-                    <div class="control-item">
-                        <span class="control-icon">🔊</span>
-                        <span>Volume</span>
-                    </div>
-                    <div class="control-item">
-                        <span class="control-icon">⛶</span>
-                        <span>Schermo intero</span>
-                    </div>
-                    <div class="control-item">
-                        <span class="control-icon">📺</span>
-                        <span>Anteprima PIP</span>
-                    </div>
                 </div>
             </div>
             
             <footer>
-                <p>Powered by Plyr | Compatibile con iOS, Android e tutti i browser moderni</p>
+                <p>Lettore Video nativo | Compatibile con tutti i dispositivi</p>
             </footer>
         </div>
     </div>
 
     <!-- Schermo intero personalizzato -->
-    <div class="custom-fullscreen" id="customFullscreen">
-        <video id="fullscreenVideo" controls></video>
+    <div class="fullscreen-overlay" id="fullscreenOverlay">
+        <video class="fullscreen-video" id="fullscreenVideo" controls></video>
         <button class="close-fullscreen" id="closeFullscreen">✕</button>
     </div>
 
-    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
-        // Inizializzazione del player Plyr
-        const player = new Plyr('#player', {
-            controls: [
-                'play-large',
-                'play',
-                'progress',
-                'current-time',
-                'mute',
-                'volume',
-                'settings',
-                'fullscreen'
-            ],
-            settings: ['quality', 'speed'],
-            seekTime: 10,
-            volume: 0.8,
-            clickToPlay: true,
-            disableContextMenu: false,
-            hideControls: true,
-            resetOnEnd: false,
-            keyboard: { focused: true, global: true },
-            tooltips: { controls: true, seek: true },
-            fullscreen: { enabled: true, fallback: true, iosNative: true }
+        // Elementi DOM
+        const videoElement = document.getElementById('videoElement');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const muteBtn = document.getElementById('muteBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeLevel = document.getElementById('volumeLevel');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const fullscreenOverlay = document.getElementById('fullscreenOverlay');
+        const fullscreenVideo = document.getElementById('fullscreenVideo');
+        const closeFullscreen = document.getElementById('closeFullscreen');
+        
+        // URL dello stream
+        const streamUrl = 'https://5f22d76e220e1.streamlock.net/iuniortv/iuniortv/playlist.m3u8';
+        
+        // Inizializzazione del video
+        function initVideo() {
+            // Controlla se il browser supporta HLS nativamente (Safari)
+            if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                videoElement.src = streamUrl;
+                console.log('Usando HLS nativo');
+            } 
+            // Altrimenti, usa hls.js per altri browser
+            else if (Hls.isSupported()) {
+                const hls = new Hls({
+                    enableWorker: false,
+                    lowLatencyMode: true,
+                    backBufferLength: 90
+                });
+                hls.loadSource(streamUrl);
+                hls.attachMedia(videoElement);
+                console.log('Usando hls.js');
+            } else {
+                console.error('Il tuo browser non supporta la riproduzione di stream HLS');
+                alert('Il tuo browser non supporta la riproduzione di questo video. Prova con un browser più recente.');
+            }
+            
+            // Imposta volume iniziale
+            videoElement.volume = 0.8;
+            updateVolumeUI();
+        }
+        
+        // Riproduci/Pausa
+        playPauseBtn.addEventListener('click', function() {
+            if (videoElement.paused || videoElement.ended) {
+                videoElement.play();
+                playPauseBtn.innerHTML = '⏸️';
+            } else {
+                videoElement.pause();
+                playPauseBtn.innerHTML = '⏯️';
+            }
         });
         
-        // Inizializzazione HLS.js per il supporto streaming
-        const video = document.getElementById('player');
-        const videoSrc = 'https://5f22d76e220e1.streamlock.net/iuniortv/iuniortv/playlist.m3u8';
+        // Aggiorna la barra di progresso
+        videoElement.addEventListener('timeupdate', function() {
+            if (videoElement.duration) {
+                const progress = (videoElement.currentTime / videoElement.duration) * 100;
+                progressBar.style.width = `${progress}%`;
+                
+                // Aggiorna il tempo
+                const currentTime = formatTime(videoElement.currentTime);
+                const duration = formatTime(videoElement.duration);
+                timeDisplay.textContent = `${currentTime} / ${duration}`;
+            }
+        });
         
-        if (Hls.isSupported()) {
-            const hls = new Hls({
-                enableWorker: false,
-                lowLatencyMode: true,
-                backBufferLength: 90
-            });
-            hls.loadSource(videoSrc);
-            hls.attachMedia(video);
+        // Clic sulla barra di progresso per seek
+        progressContainer.addEventListener('click', function(e) {
+            const rect = progressContainer.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            videoElement.currentTime = percent * videoElement.duration;
+        });
+        
+        // Mutare/Attivare audio
+        muteBtn.addEventListener('click', function() {
+            videoElement.muted = !videoElement.muted;
+            updateVolumeUI();
+        });
+        
+        // Controllo volume
+        volumeSlider.addEventListener('click', function(e) {
+            const rect = volumeSlider.getBoundingClientRect();
+            let percent = (e.clientX - rect.left) / rect.width;
+            percent = Math.max(0, Math.min(1, percent));
+            videoElement.volume = percent;
+            updateVolumeUI();
+        });
+        
+        // Aggiorna UI del volume
+        function updateVolumeUI() {
+            volumeLevel.style.width = `${videoElement.volume * 100}%`;
             
-            hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                console.log('Stream HLS caricato correttamente');
-            });
+            if (videoElement.muted || videoElement.volume === 0) {
+                muteBtn.innerHTML = '🔇';
+                volumeLevel.style.width = '0%';
+            } else if (videoElement.volume < 0.5) {
+                muteBtn.innerHTML = '🔈';
+            } else {
+                muteBtn.innerHTML = '🔊';
+            }
+        }
+        
+        // Schermo intero personalizzato
+        fullscreenBtn.addEventListener('click', function() {
+            openFullscreen();
+        });
+        
+        function openFullscreen() {
+            fullscreenOverlay.style.display = 'block';
+            fullscreenVideo.src = streamUrl;
+            fullscreenVideo.currentTime = videoElement.currentTime;
             
-            hls.on(Hls.Events.ERROR, function(event, data) {
-                console.error('Errore HLS:', data);
-            });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            // Supporto nativo per HLS (Safari)
-            video.src = videoSrc;
+            if (!videoElement.paused) {
+                fullscreenVideo.play();
+            }
+            
+            // Blocca lo scorrimento della pagina
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeFullscreenHandler() {
+            fullscreenOverlay.style.display = 'none';
+            videoElement.currentTime = fullscreenVideo.currentTime;
+            
+            if (!fullscreenVideo.paused && videoElement.paused) {
+                videoElement.play();
+                playPauseBtn.innerHTML = '⏸️';
+            }
+            
+            // Ripristina lo scorrimento della pagina
+            document.body.style.overflow = '';
+            
+            fullscreenVideo.pause();
+            fullscreenVideo.src = '';
+        }
+        
+        closeFullscreen.addEventListener('click', closeFullscreenHandler);
+        
+        // Chiudi schermo intero con ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && fullscreenOverlay.style.display === 'block') {
+                closeFullscreenHandler();
+            }
+        });
+        
+        // Formatta il tempo in mm:ss
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
         }
         
         // Rilevamento dispositivo
@@ -401,107 +544,34 @@
             }
         }
         
-        // Schermo intero personalizzato
-        const customFullscreen = document.getElementById('customFullscreen');
-        const fullscreenVideo = document.getElementById('fullscreenVideo');
-        const closeFullscreen = document.getElementById('closeFullscreen');
-        
-        // Apri schermo intero personalizzato
-        function openCustomFullscreen() {
-            customFullscreen.style.display = 'block';
-            fullscreenVideo.src = videoSrc;
-            fullscreenVideo.play();
-            
-            // Blocca lo scorrimento della pagina
-            document.body.style.overflow = 'hidden';
-        }
-        
-        // Chiudi schermo intero personalizzato
-        function closeCustomFullscreen() {
-            customFullscreen.style.display = 'none';
-            fullscreenVideo.pause();
-            fullscreenVideo.src = '';
-            
-            // Ripristina lo scorrimento della pagina
-            document.body.style.overflow = '';
-        }
-        
-        // Gestione schermo intero nativo vs personalizzato
-        player.on('enterfullscreen', function() {
-            console.log('Schermo intero nativo attivato');
-        });
-        
-        player.on('exitfullscreen', function() {
-            console.log('Schermo intero nativo disattivato');
-        });
-        
-        // Gestione Picture-in-Picture
-        function togglePip() {
-            if (document.pictureInPictureElement) {
-                document.exitPictureInPicture()
-                    .catch(error => {
-                        console.error('Errore nell\'uscita dalla modalità PIP:', error);
-                    });
-            } else if (document.pictureInPictureEnabled) {
-                video.requestPictureInPicture()
-                    .catch(error => {
-                        console.error('Errore nell\'attivazione della modalità PIP:', error);
-                        alert('La modalità Picture-in-Picture non è supportata nel tuo browser');
-                    });
-            } else {
-                alert('La modalità Picture-in-Picture non è supportata nel tuo browser');
-            }
-        }
-        
-        // Aggiungi controllo PIP personalizzato
-        function addPipButton() {
-            const controls = document.querySelector('.plyr__controls');
-            if (controls && document.pictureInPictureEnabled) {
-                const pipButton = document.createElement('button');
-                pipButton.className = 'plyr__control';
-                pipButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 7h-8v8h8V7zm2-4H3c-1.1 0-2 .9-2 2v14c0 1.1.9 1.98 2 1.98h18c1.1 0 2-.88 2-1.98V5c0-1.1-.9-2-2-2zm0 16.01H3V4.98h18v14.03z"/></svg>';
-                pipButton.setAttribute('aria-label', 'Picture-in-Picture');
-                pipButton.setAttribute('data-plyr', 'pip');
-                pipButton.addEventListener('click', togglePip);
-                
-                // Inserisci il pulsante prima del pulsante impostazioni
-                const settingsButton = controls.querySelector('[data-plyr="settings"]');
-                if (settingsButton) {
-                    controls.insertBefore(pipButton, settingsButton);
-                } else {
-                    controls.appendChild(pipButton);
-                }
-            }
-        }
-        
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
             detectDevice();
+            initVideo();
             
-            // Aggiungi il pulsante PIP dopo che il player è pronto
-            player.on('ready', function() {
-                addPipButton();
-                
-                // Tentativo di riproduzione automatica (con gestione errori)
-                const playPromise = player.play();
+            // Tentativo di riproduzione automatica
+            videoElement.addEventListener('loadeddata', function() {
+                const playPromise = videoElement.play();
                 
                 if (playPromise !== undefined) {
-                    playPromise.catch(error => {
-                        console.log('Riproduzione automatica non consentita, attendere l\'interazione utente');
+                    playPromise.then(() => {
+                        playPauseBtn.innerHTML = '⏸️';
+                    }).catch(error => {
+                        console.log('Riproduzione automatica non consentita');
+                        playPauseBtn.innerHTML = '⏯️';
                     });
                 }
             });
             
-            // Gestione chiusura schermo intero personalizzato
-            closeFullscreen.addEventListener('click', closeCustomFullscreen);
-            
-            // Chiudi schermo intero personalizzato con ESC
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && customFullscreen.style.display === 'block') {
-                    closeCustomFullscreen();
-                }
+            // Gestione errori del video
+            videoElement.addEventListener('error', function() {
+                console.error('Errore nel caricamento del video');
+                alert('Si è verificato un errore nel caricamento del video. Riprova più tardi.');
             });
         });
     </script>
+    
+    <!-- Carica hls.js solo se necessario -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </body>
 </html>
