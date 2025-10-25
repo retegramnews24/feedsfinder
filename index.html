@@ -2,11 +2,9 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feeds Finder</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Plyr CSS -->
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         * {
@@ -20,346 +18,381 @@
             background: linear-gradient(135deg, #1a1f3d, #3d1a1a, #2a240f);
             color: #f0f0f0;
             min-height: 100vh;
-            padding: 4px;
-            overflow-x: hidden;
-            width: 100%;
+            padding: 12px;
         }
         
         .container {
-            width: 100%;
+            max-width: 1600px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 12px;
+        }
+        
+        .fixed-top {
+            position: sticky;
+            top: 12px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         
         .player-section {
-            position: sticky;
-            top: 4px;
-            z-index: 100;
-            background: rgba(30, 30, 45, 0.95);
+            background: rgba(30, 30, 45, 0.8);
             backdrop-filter: blur(10px);
-            border-radius: 6px;
-            padding: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            width: 100%;
         }
         
         .player-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 6px;
-            width: 100%;
+            margin-bottom: 18px;
         }
         
         .player-title {
-            font-size: 1.1rem;
+            font-size: 1.4rem;
             color: #ffd166;
             display: flex;
             align-items: center;
-            gap: 4px;
-        }
-        
-        .current-channel-title {
-            font-size: 1rem;
-            color: #ffd166;
-            text-align: right;
-            max-width: 60%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            gap: 10px;
         }
         
         .video-container {
             width: 100%;
             background: #000;
-            border-radius: 6px;
+            border-radius: 10px;
             overflow: hidden;
-            margin-bottom: 6px;
+            margin-bottom: 18px;
             position: relative;
             aspect-ratio: 16/9;
         }
         
-        /* Plyr customization */
-        .plyr {
-            border-radius: 6px;
+        #videoPlayer {
+            width: 100%;
             height: 100%;
+            display: block;
+            object-fit: contain;
         }
         
-        .plyr__controls {
-            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+        .player-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
         }
         
-        .plyr__control--overlaid {
-            background: #2a8c85;
+        .control-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.15rem;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
-        .plyr__control--overlaid:hover {
+        /* Schema colori verticale - Colonna 1 */
+        .control-btn.play {
+            background: #2a8c85; /* Verde acqua */
+        }
+        
+        .control-btn.play:hover {
             background: #237a74;
         }
         
-        .plyr--fullscreen-active .plyr__controls {
-            border-radius: 0;
+        .control-btn.pause {
+            background: #d4b15c; /* Oro */
         }
         
-        /* Fix per fullscreen su mobile */
-        .plyr:-webkit-full-screen .video-container,
-        .plyr:-moz-full-screen .video-container,
-        .plyr:-ms-fullscreen .video-container,
-        .plyr:fullscreen .video-container {
-            width: 100% !important;
-            height: 100% !important;
-            border-radius: 0 !important;
+        .control-btn.pause:hover {
+            background: #c4a14c;
         }
         
-        .plyr:-webkit-full-screen .plyr__video-wrapper,
-        .plyr:-moz-full-screen .plyr__video-wrapper,
-        .plyr:-ms-fullscreen .plyr__video-wrapper,
-        .plyr:fullscreen .plyr__video-wrapper {
-            height: 100% !important;
+        .control-btn.stop {
+            background: #c55c5c; /* Rosso */
         }
         
-        .plyr:-webkit-full-screen video,
-        .plyr:-moz-full-screen video,
-        .plyr:-ms-fullscreen video,
-        .plyr:fullscreen video {
-            object-fit: contain !important;
-            width: 100% !important;
-            height: 100% !important;
+        .control-btn.stop:hover {
+            background: #b35050;
+        }
+        
+        .current-stream {
+            background: rgba(20, 20, 30, 0.7);
+            padding: 12px;
+            border-radius: 8px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 80px;
+            overflow-y: auto;
+            color: #c8c8c8;
         }
         
         .search-box {
             background: rgba(30, 30, 45, 0.8);
             backdrop-filter: blur(10px);
-            border-radius: 6px;
-            padding: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            width: 100%;
         }
         
         .search-form {
             display: flex;
-            gap: 6px;
-            flex-wrap: nowrap;
-            margin-bottom: 8px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .search-row {
+            display: flex;
+            gap: 15px;
             width: 100%;
         }
         
         .search-input {
             flex: 1;
-            padding: 7px 10px;
+            min-width: 0;
+            padding: 16px 18px;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             background: rgba(50, 50, 65, 0.9);
-            font-size: 0.85rem;
-            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+            font-size: 1.25rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
             color: #f0f0f0;
             border: 1px solid rgba(255, 255, 255, 0.12);
-            min-width: 0;
         }
         
-        .search-input::placeholder { color: #999; }
+        .search-input::placeholder {
+            color: #999;
+        }
         
         .search-btn {
-            padding: 7px 12px;
+            flex: 1;
+            padding: 16px 28px;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             color: white;
-            font-size: 0.85rem;
+            font-size: 1.25rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
-            height: 32px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+            height: 54px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            background: #8a6bc9;
-            white-space: nowrap;
-            min-width: fit-content;
+            gap: 8px;
         }
         
-        .search-btn:hover { background: #7a5bb9; transform: translateY(-1px); }
-        .search-btn:active { transform: translateY(0); }
-
-        .custom-url-form {
+        /* Schema colori verticale - Colonna 2 */
+        .search-btn {
+            background: #8a6bc9; /* Viola */
+        }
+        
+        .search-btn:hover {
+            background: #7a5bb9;
+            transform: translateY(-2px);
+        }
+        
+        .search-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Nuovo stile per la riga degli URL personalizzati */
+        .custom-url-row {
             display: flex;
-            gap: 6px;
-            flex-wrap: nowrap;
+            gap: 15px;
             width: 100%;
         }
         
-        .custom-url-input {
+        .custom-url-input, .custom-channel-input {
             flex: 1;
-            padding: 7px 10px;
+            min-width: 0;
+            padding: 16px 18px;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             background: rgba(50, 50, 65, 0.9);
-            font-size: 0.85rem;
-            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+            font-size: 1.25rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
             color: #f0f0f0;
             border: 1px solid rgba(255, 255, 255, 0.12);
-            min-width: 0;
         }
         
-        .custom-name-input {
+        .custom-url-input::placeholder, .custom-channel-input::placeholder {
+            color: #999;
+        }
+        
+        .save-custom-btn {
             flex: 1;
-            padding: 7px 10px;
+            padding: 16px 28px;
             border: none;
-            border-radius: 6px;
-            background: rgba(50, 50, 65, 0.9);
-            font-size: 0.85rem;
-            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
-            color: #f0f0f0;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            min-width: 0;
-        }
-        
-        .add-custom-btn {
-            padding: 7px 12px;
-            border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             color: white;
-            font-size: 0.85rem;
+            font-size: 1.25rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
-            height: 32px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+            height: 54px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            background: #2a8c85;
-            white-space: nowrap;
-            min-width: fit-content;
+            gap: 8px;
+            background: #2a8c85; /* Verde acqua */
         }
         
-        .add-custom-btn:hover { background: #237a74; transform: translateY(-1px); }
-        .add-custom-btn:active { transform: translateY(0); }
+        .save-custom-btn:hover {
+            background: #237a74;
+            transform: translateY(-2px);
+        }
+        
+        .save-custom-btn:active {
+            transform: translateY(0);
+        }
 
+        /* Tabs per Preferiti */
         .tabs-container {
             display: flex;
-            gap: 2px;
-            margin-bottom: 8px;
+            gap: 8px;
+            margin-bottom: 18px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-            width: 100%;
         }
 
         .tab {
-            flex: 1;
-            padding: 6px 10px;
+            padding: 12px 24px;
             background: rgba(40, 40, 55, 0.8);
             border: none;
-            border-radius: 6px 6px 0 0;
+            border-radius: 10px 10px 0 0;
             color: #d0d0d0;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.8rem;
-            text-align: center;
+            font-size: 1.1rem;
         }
 
         .tab.active {
             background: rgba(197, 92, 92, 0.35);
-            border-bottom: 2px solid #c55c5c;
+            border-bottom: 3px solid #c55c5c;
             color: #ffd166;
         }
 
-        .tab:hover:not(.active) { background: rgba(60, 60, 75, 0.8); }
+        .tab:hover:not(.active) {
+            background: rgba(60, 60, 75, 0.8);
+        }
 
+        /* Sezione Preferiti - Controlli allineati come player controls */
         .favorites-controls {
             display: flex;
-            gap: 4px;
-            margin-bottom: 8px;
-            width: 100%;
-            flex-wrap: nowrap;
+            gap: 12px;
+            margin-bottom: 18px;
         }
 
         .favorites-btn {
             flex: 1;
-            padding: 7px;
+            padding: 16px;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             color: white;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.85rem;
-            height: 32px;
+            font-size: 1.15rem;
+            height: 54px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 3px;
-            min-width: 0;
+            gap: 8px;
         }
 
-        .favorites-btn.import { background: #2a8c85; }
-        .favorites-btn.import:hover { background: #237a74; }
-        .favorites-btn.export { background: #d4b15c; }
-        .favorites-btn.export:hover { background: #c4a14c; }
-        .favorites-btn.delete { background: #c55c5c; }
-        .favorites-btn.delete:hover { background: #b35050; }
+        /* Schema colori verticale - Colonna 3 */
+        .favorites-btn.import {
+            background: #2a8c85; /* Verde acqua */
+        }
+
+        .favorites-btn.import:hover {
+            background: #237a74;
+        }
+
+        .favorites-btn.export {
+            background: #d4b15c; /* Oro */
+        }
+
+        .favorites-btn.export:hover {
+            background: #c4a14c;
+        }
+
+        .favorites-btn.delete {
+            background: #c55c5c; /* Rosso */
+        }
+
+        .favorites-btn.delete:hover {
+            background: #b35050;
+        }
         
         .results-section {
             background: rgba(30, 30, 45, 0.8);
             backdrop-filter: blur(10px);
-            border-radius: 6px;
-            padding: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.08);
             flex: 1;
-            min-height: 350px;
-            width: 100%;
+            min-height: 550px;
         }
         
         .results-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            width: 100%;
+            margin-bottom: 20px;
         }
         
         .results-title {
-            font-size: 1.1rem;
+            font-size: 1.4rem;
             color: #ffd166;
         }
         
         .results-count {
             background: rgba(50, 50, 65, 0.9);
-            padding: 3px 8px;
-            border-radius: 14px;
-            font-size: 0.85rem;
+            padding: 8px 15px;
+            border-radius: 18px;
+            font-size: 1.15rem;
             color: #d0d0d0;
         }
         
         .results-container {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 6px;
-            width: 100%;
+            grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+            gap: 12px;
         }
         
         .result-card {
             background: rgba(35, 35, 50, 0.9);
-            border-radius: 6px;
-            padding: 6px;
+            border-radius: 10px;
+            padding: 12px;
             transition: all 0.3s ease;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            min-height: 90px;
+            min-height: 140px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            width: 100%;
         }
         
         .result-card:hover {
             background: rgba(45, 45, 60, 1);
-            transform: translateY(-1px);
+            transform: translateY(-3px);
             border-color: rgba(255, 255, 255, 0.18);
         }
         
@@ -369,26 +402,28 @@
         }
         
         .channel-title {
-            font-size: 0.85rem;
-            margin-bottom: 3px;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 8px;
             color: #f5f5f5;
         }
         
-        .channel-icon { color: #d4b15c; }
+        .channel-icon {
+            color: #d4b15c;
+        }
         
         .m3u8-link {
             background: rgba(20, 20, 30, 0.7);
-            padding: 3px 5px;
-            border-radius: 3px;
+            padding: 6px 8px;
+            border-radius: 6px;
             word-break: break-all;
             font-family: monospace;
-            font-size: 0.65rem;
-            margin-bottom: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            max-height: 25px;
+            max-height: 35px;
             overflow-y: auto;
             color: #b8b8b8;
             flex-grow: 1;
@@ -396,232 +431,240 @@
         
         .result-actions {
             display: flex;
-            gap: 3px;
-            width: 100%;
-            flex-wrap: nowrap;
+            gap: 8px;
         }
         
         .action-btn {
             flex: 1;
-            padding: 5px;
+            padding: 10px;
             border: none;
-            border-radius: 3px;
-            font-size: 0.8rem;
+            border-radius: 6px;
+            font-size: 1.05rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            height: 26px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 2px;
-            min-width: 0;
+            gap: 6px;
         }
         
-        .action-btn.copy { background: #2a8c85; color: white; }
-        .action-btn.copy:hover { background: #237a74; }
-        .action-btn.play { background: #8a6bc9; color: white; }
-        .action-btn.play:hover { background: #7a5bb9; }
-        .action-btn.favorite { background: #d4b15c; color: #2a2a2a; }
-        .action-btn.favorite:hover { background: #c4a14c; }
-        .action-btn.favorite.active { background: #c55c5c; color: white; }
+        /* Schema colori verticale - Colonna 4 */
+        .action-btn.copy {
+            background: #2a8c85; /* Verde acqua */
+            color: white;
+        }
         
-        .loading, .no-results {
+        .action-btn.copy:hover {
+            background: #237a74;
+        }
+        
+        .action-btn.play {
+            background: #8a6bc9; /* Viola */
+            color: white;
+        }
+        
+        .action-btn.play:hover {
+            background: #7a5bb9;
+        }
+
+        .action-btn.favorite {
+            background: #d4b15c; /* Oro */
+            color: #2a2a2a;
+        }
+
+        .action-btn.favorite:hover {
+            background: #c4a14c;
+        }
+
+        .action-btn.favorite.active {
+            background: #c55c5c; /* Rosso */
+            color: white;
+        }
+        
+        .loading {
             text-align: center;
-            padding: 15px;
-            font-size: 0.85rem;
+            padding: 30px;
+            font-size: 1.25rem;
             grid-column: 1 / -1;
             color: #c8c8c8;
-            width: 100%;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            font-size: 1.25rem;
+            grid-column: 1 / -1;
+            color: #c8c8c8;
         }
         
         .pagination {
             display: flex;
             justify-content: center;
-            gap: 4px;
-            margin-top: 8px;
+            gap: 12px;
+            margin-top: 20px;
             grid-column: 1 / -1;
-            flex-wrap: wrap;
-            width: 100%;
         }
         
         .page-btn {
-            padding: 5px 10px;
+            padding: 10px 18px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             background: rgba(50, 50, 65, 0.9);
             color: #d0d0d0;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.8rem;
+            font-size: 1.1rem;
             border: 1px solid rgba(255, 255, 255, 0.12);
         }
         
-        .page-btn.active { background: #8a6bc9; color: white; }
-        .page-btn:hover:not(.active) { background: rgba(70, 70, 85, 0.9); }
+        .page-btn.active {
+            background: #8a6bc9; /* Viola */
+            color: white;
+        }
+        
+        .page-btn:hover:not(.active) {
+            background: rgba(70, 70, 85, 0.9);
+        }
 
+        /* Toast notifications */
         .toast {
             position: fixed;
-            top: 10px;
-            right: 10px;
-            padding: 8px 14px;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
             background: rgba(40, 40, 55, 0.95);
             color: #f0f0f0;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            border-left: 3px solid #d4b15c;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #d4b15c;
             z-index: 1000;
             transform: translateX(400px);
             transition: transform 0.3s ease;
-            font-size: 0.8rem;
-            max-width: 80%;
+            font-size: 1.05rem;
         }
 
-        .toast.show { transform: translateX(0); }
-        .toast.success { border-left-color: #2a8c85; }
-        .toast.error { border-left-color: #c55c5c; }
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left-color: #2a8c85;
+        }
+
+        .toast.error {
+            border-left-color: #c55c5c;
+        }
         
-        /* Ottimizzazioni per mobile */
+        /* Mobile optimizations */
         @media (max-width: 768px) {
             body {
-                padding: 4px;
+                padding: 10px;
             }
             
-            .container {
-                gap: 4px;
+            .fixed-top {
+                top: 10px;
+            }
+            
+            .search-row, .custom-url-row {
+                flex-direction: column;
+            }
+            
+            .search-input, .search-btn, .custom-url-input, .custom-channel-input, .save-custom-btn {
                 width: 100%;
             }
             
-            .search-form, .custom-url-form {
-                flex-wrap: nowrap;
-                overflow-x: auto;
+            .video-container {
+                aspect-ratio: 16/9;
             }
             
-            .search-input, .search-btn,
-            .custom-url-input, .custom-name-input, .add-custom-btn {
-                min-width: 0;
-                margin-bottom: 0;
-                flex-shrink: 0;
-            }
-            
-            .search-input {
-                min-width: 150px;
-            }
-            
-            .custom-url-input, .custom-name-input {
-                min-width: 120px;
-            }
-            
-            /* Miglioramenti per la riga di inserimento URL su mobile */
-            .custom-url-form {
-                flex-wrap: wrap;
-                gap: 4px;
-            }
-            
-            .custom-url-input, .custom-name-input {
-                flex: 1 1 100%;
-                min-width: 100%;
-            }
-            
-            .add-custom-btn {
-                flex: 1 1 100%;
-                min-width: 100%;
-            }
-            
-            .favorites-controls, .result-actions {
-                flex-wrap: nowrap;
-            }
-            
-            .favorites-btn, .action-btn {
-                min-width: 0;
-                flex: 1;
+            .results-section {
+                padding: 16px;
             }
             
             .results-container {
                 grid-template-columns: 1fr;
             }
-        }
-        
-        @media (min-width: 768px) {
-            .container { 
-                max-width: 100%;
-                padding: 0 2px;
-            }
-            .results-container { 
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-                gap: 8px;
-            }
-            .search-form { 
-                flex-direction: row; 
-                gap: 8px;
-                margin-bottom: 8px;
-            }
-            .search-input { 
-                min-width: 0; 
-                flex: 2;
-            }
-            .search-btn { 
-                width: auto; 
-                flex: 1;
-            }
-            .custom-url-form {
-                flex-direction: row;
-            }
-            .custom-url-input, .custom-name-input {
-                flex: 1;
-            }
-            .add-custom-btn {
-                flex: 0 0 auto;
-            }
+            
             .result-card {
-                min-height: 100px;
-                padding: 8px;
+                padding: 10px;
+                min-height: 130px;
             }
+            
             .channel-title {
-                font-size: 0.9rem;
+                font-size: 1.1rem;
             }
-            .m3u8-link {
-                font-size: 0.7rem;
-                max-height: 28px;
+
+            .tabs-container {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                flex: 1;
+                min-width: 140px;
+                text-align: center;
+            }
+
+            .player-controls {
+                flex-wrap: wrap;
             }
         }
         
-        @media (min-width: 1024px) {
-            .container {
-                max-width: 98%;
+        @media (max-width: 480px) {
+            .result-actions {
+                flex-wrap: wrap;
             }
-            .results-container {
-                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+
+            .action-btn {
+                min-width: 45%;
+            }
+
+            .favorites-btn {
+                font-size: 1rem;
+                padding: 12px 8px;
+            }
+
+            .favorites-btn i {
+                margin-right: 4px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="player-section">
-            <div class="player-header">
-                <div class="player-title">
-                    <i class="fas fa-satellite-dish"></i> Feeds Finder
+        <div class="fixed-top">
+            <div class="player-section">
+                <div class="player-header">
+                    <div class="player-title">
+                        <i class="fas fa-satellite-dish"></i> Feeds Finder
+                    </div>
                 </div>
-                <div class="current-channel-title" id="currentChannelTitle"></div>
+                <div class="video-container">
+                    <video id="videoPlayer" controls></video>
+                </div>
+                <div class="player-controls">
+                    <button class="control-btn play" id="playBtn" title="Play"><i class="fas fa-play"></i></button>
+                    <button class="control-btn pause" id="pauseBtn" title="Pausa"><i class="fas fa-pause"></i></button>
+                    <button class="control-btn stop" id="stopBtn" title="Stop"><i class="fas fa-stop"></i></button>
+                </div>
+                <div class="current-stream" id="currentStream">
+                    Nessuno stream selezionato
+                </div>
             </div>
-            <div class="video-container">
-                <video id="videoPlayer" playsinline controls>
-                    <!-- Le sorgenti verranno impostate dinamicamente -->
-                </video>
-            </div>
-        </div>
-        
-        <div class="search-box" id="searchBox">
-            <form class="search-form" id="searchForm">
-                <input type="text" class="search-input" id="searchQuery" placeholder="Cerca canali TV, sport, news, film...">
-                <button type="submit" class="search-btn"><i class="fas fa-search"></i> Cerca Canali</button>
-            </form>
             
-            <div class="custom-url-form">
-                <input type="text" class="custom-url-input" id="customUrlInput" placeholder="URL stream personalizzato">
-                <input type="text" class="custom-name-input" id="customNameInput" placeholder="Nome del canale">
-                <button type="button" class="add-custom-btn" id="addCustomBtn"><i class="fas fa-plus"></i> Aggiungi</button>
+            <div class="search-box">
+                <form class="search-form" id="searchForm">
+                    <div class="search-row">
+                        <input type="text" class="search-input" id="searchQuery" placeholder="Cerca canali TV, sport, news, film...">
+                        <button type="submit" class="search-btn"><i class="fas fa-search"></i> Cerca Canali</button>
+                    </div>
+                    <div class="custom-url-row">
+                        <input type="text" class="custom-url-input" id="customUrlInput" placeholder="Incolla URL m3u8 personalizzato">
+                        <input type="text" class="custom-channel-input" id="customChannelNameInput" placeholder="Nome del canale (opzionale)">
+                        <button type="button" class="save-custom-btn" id="saveCustomChannelBtn"><i class="fas fa-plus"></i> Aggiungi Canale</button>
+                    </div>
+                </form>
             </div>
         </div>
         
@@ -631,6 +674,7 @@
                 <button class="tab" id="favoritesTab">Preferiti</button>
             </div>
 
+            <!-- I controlli preferiti sono visibili SOLO nella vista Preferiti -->
             <div class="favorites-controls" id="favoritesControls" style="display: none;">
                 <button class="favorites-btn import" id="importFavoritesBtn">
                     <i class="fas fa-file-import"></i> Importa
@@ -654,14 +698,14 @@
                 </div>
             </div>
             
-            <div class="pagination" id="pagination"></div>
+            <div class="pagination" id="pagination">
+                <!-- I pulsanti di paginazione verranno inseriti qui dinamicamente -->
+            </div>
         </div>
     </div>
 
     <div id="toastContainer"></div>
 
-    <!-- Plyr JS -->
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <script>
         // Elementi DOM
         const searchForm = document.getElementById('searchForm');
@@ -670,7 +714,10 @@
         const resultsCount = document.getElementById('resultsCount');
         const resultsTitle = document.getElementById('resultsTitle');
         const videoPlayer = document.getElementById('videoPlayer');
-        const currentChannelTitle = document.getElementById('currentChannelTitle');
+        const currentStream = document.getElementById('currentStream');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
         const pagination = document.getElementById('pagination');
         const searchTab = document.getElementById('searchTab');
         const favoritesTab = document.getElementById('favoritesTab');
@@ -679,10 +726,11 @@
         const exportFavoritesBtn = document.getElementById('exportFavoritesBtn');
         const clearFavoritesBtn = document.getElementById('clearFavoritesBtn');
         const toastContainer = document.getElementById('toastContainer');
+        
+        // Nuovi elementi per URL personalizzati
         const customUrlInput = document.getElementById('customUrlInput');
-        const customNameInput = document.getElementById('customNameInput');
-        const addCustomBtn = document.getElementById('addCustomBtn');
-        const searchBox = document.getElementById('searchBox');
+        const customChannelNameInput = document.getElementById('customChannelNameInput');
+        const saveCustomChannelBtn = document.getElementById('saveCustomChannelBtn');
         
         // Variabili globali
         let currentResults = [];
@@ -690,9 +738,44 @@
         const resultsPerPage = 15;
         let hls = null;
         let favorites = JSON.parse(localStorage.getItem('m3u8_favorites')) || [];
-        let currentView = 'search';
-        let currentChannelName = '';
-        let player = null; // Per l'istanza Plyr
+        let currentView = 'search'; // Vista iniziale: ricerca
+        
+        // Database di canali esteso
+        const CHANNEL_DATABASE = [
+            { name: "Rai 1", categories: ["entertainment", "news"], country: "it" },
+            { name: "Rai 2", categories: ["entertainment", "sports"], country: "it" },
+            { name: "Rai 3", categories: ["news", "entertainment"], country: "it" },
+            { name: "Canale 5", categories: ["entertainment", "movies"], country: "it" },
+            { name: "Italia 1", categories: ["entertainment", "movies"], country: "it" },
+            { name: "Rete 4", categories: ["entertainment", "news"], country: "it" },
+            { name: "La7", categories: ["news", "entertainment"], country: "it" },
+            { name: "Sky Sport", categories: ["sports"], country: "it" },
+            { name: "DAZN", categories: ["sports"], country: "it" },
+            { name: "Rai Sport", categories: ["sports"], country: "it" },
+            { name: "EuroSport", categories: ["sports"], country: "eu" },
+            { name: "Rai News", categories: ["news"], country: "it" },
+            { name: "TGcom24", categories: ["news"], country: "it" },
+            { name: "CNN", categories: ["news"], country: "us" },
+            { name: "BBC News", categories: ["news"], country: "uk" },
+            { name: "Rai Movie", categories: ["movies"], country: "it" },
+            { name: "Sky Cinema", categories: ["movies"], country: "it" },
+            { name: "Cine34", categories: ["movies"], country: "it" },
+            { name: "Rai 4", categories: ["entertainment"], country: "it" },
+            { name: "Rai 5", categories: ["entertainment"], country: "it" },
+            { name: "TV8", categories: ["entertainment"], country: "it" },
+            { name: "Rai Yoyo", categories: ["kids"], country: "it" },
+            { name: "Cartoon Network", categories: ["kids"], country: "us" },
+            { name: "Boing", categories: ["kids"], country: "it" },
+            { name: "Rai Radio", categories: ["music"], country: "it" },
+            { name: "MTV", categories: ["music"], country: "us" },
+            { name: "Virgin Radio", categories: ["music"], country: "it" },
+            { name: "BBC One", categories: ["entertainment"], country: "uk" },
+            { name: "BBC Two", categories: ["entertainment"], country: "uk" },
+            { name: "TF1", categories: ["entertainment"], country: "fr" },
+            { name: "ARD", categories: ["entertainment"], country: "de" },
+            { name: "ZDF", categories: ["entertainment"], country: "de" },
+            { name: "TVE", categories: ["entertainment"], country: "es" }
+        ];
 
         // Funzione per mostrare toast notifications
         function showToast(message, type = 'info') {
@@ -713,73 +796,31 @@
             }, 3000);
         }
 
-        // Inizializzazione Plyr
-        function initializePlyr() {
-            player = new Plyr('#videoPlayer', {
-                controls: [
-                    'play-large', // Il pulsante play grande al centro
-                    'play', // Play/pause
-                    'progress', // Barra progresso
-                    'current-time', // Tempo corrente
-                    'duration', // Durata
-                    'mute', // Muto
-                    'volume', // Volume verticale
-                    'settings', // Impostazioni (se necessario)
-                    'pip', // Picture-in-picture (se supportato)
-                    'fullscreen', // Schermo intero
-                ],
-                settings: ['quality', 'speed'],
-                hideControls: false,
-                fullscreen: {
-                    enabled: true,
-                    fallback: true,
-                    iosNative: true
-                }
-            });
-
-            // Aggiungi un controllo personalizzato per stop
-            const stopButton = document.createElement('button');
-            stopButton.type = 'button';
-            stopButton.className = 'plyr__controls__item plyr__control';
-            stopButton.innerHTML = '<i class="fas fa-stop"></i>';
-            stopButton.setAttribute('aria-label', 'Stop');
-            stopButton.setAttribute('data-plyr', 'stop');
-
-            stopButton.addEventListener('click', function() {
-                player.pause();
-                player.currentTime = 0;
-            });
-
-            // Aggiungere il bottone ai controlli
-            const controls = player.elements.controls;
-            if (controls) {
-                // Inseriamo il bottone dopo il bottone play
-                const playButton = controls.querySelector('.plyr__control--play');
-                if (playButton) {
-                    playButton.parentNode.insertBefore(stopButton, playButton.nextSibling);
-                }
-            }
-            
-            // Gestione eventi fullscreen per mobile
-            player.on('enterfullscreen', function() {
-                document.body.style.overflow = 'hidden';
-                // Forza il ridimensionamento per mobile
-                setTimeout(function() {
-                    videoPlayer.style.width = '100%';
-                    videoPlayer.style.height = '100%';
-                }, 100);
-            });
-            
-            player.on('exitfullscreen', function() {
-                document.body.style.overflow = '';
-                videoPlayer.style.width = '';
-                videoPlayer.style.height = '';
-            });
-        }
-
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
-            initializePlyr();
+            // Gestori eventi player
+            playBtn.addEventListener('click', function() {
+                if (videoPlayer.src) {
+                    videoPlayer.play();
+                    showToast('Riproduzione avviata', 'success');
+                }
+            });
+            
+            pauseBtn.addEventListener('click', function() {
+                videoPlayer.pause();
+                showToast('Riproduzione in pausa', 'info');
+            });
+            
+            stopBtn.addEventListener('click', function() {
+                videoPlayer.pause();
+                videoPlayer.currentTime = 0;
+                if (hls) {
+                    hls.destroy();
+                    hls = null;
+                }
+                currentStream.textContent = 'Nessuno stream selezionato';
+                showToast('Riproduzione fermata', 'info');
+            });
 
             // Gestori tab
             searchTab.addEventListener('click', () => switchView('search'));
@@ -790,8 +831,8 @@
             exportFavoritesBtn.addEventListener('click', exportFavorites);
             clearFavoritesBtn.addEventListener('click', clearFavorites);
 
-            // Gestore per aggiungere canale personalizzato
-            addCustomBtn.addEventListener('click', addCustomChannel);
+            // Gestore per URL personalizzati
+            saveCustomChannelBtn.addEventListener('click', saveCustomChannel);
 
             // Inizializza la vista ricerca
             switchView('search');
@@ -808,49 +849,55 @@
             }
         });
         
-        // Aggiungi canale personalizzato
-        function addCustomChannel() {
+        // Funzione per salvare URL personalizzato
+        function saveCustomChannel() {
             const url = customUrlInput.value.trim();
-            const name = customNameInput.value.trim();
+            let channelName = customChannelNameInput.value.trim();
             
             if (!url) {
                 showToast('Inserisci un URL valido', 'error');
                 return;
             }
             
-            if (!name) {
-                showToast('Inserisci un nome per il canale', 'error');
+            // Verifica che l'URL inizi con http:// o https://
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                showToast('Inserisci un URL valido (deve iniziare con http:// o https://)', 'error');
                 return;
             }
             
-            // Verifica se l'URL è valido
-            try {
-                new URL(url);
-            } catch (e) {
-                showToast('URL non valido', 'error');
+            // Se il nome del canale è vuoto, usa l'URL come nome
+            if (!channelName) {
+                channelName = url;
+            }
+            
+            // Verifica se l'URL è già nei preferiti
+            const existingIndex = favorites.findIndex(fav => fav.url === url);
+            
+            if (existingIndex > -1) {
+                showToast('Questo URL è già nei preferiti!', 'info');
                 return;
             }
             
-            const customChannel = {
-                id: `custom-${Date.now()}`,
-                title: name,
-                category: 'Personalizzato',
-                country: 'Custom',
-                quality: 'SD',
-                isLive: true,
-                url: url
-            };
+            // Aggiungi ai preferiti
+            favorites.push({ 
+                url: url, 
+                title: channelName,
+                isCustom: true
+            });
             
-            // Aggiungi ai risultati attuali
-            currentResults = [customChannel, ...currentResults];
-            displayResults(currentResults, currentPage);
-            updatePagination(currentResults.length);
+            localStorage.setItem('m3u8_favorites', JSON.stringify(favorites));
             
             // Pulisci i campi
             customUrlInput.value = '';
-            customNameInput.value = '';
+            customChannelNameInput.value = '';
             
-            showToast('Canale personalizzato aggiunto!', 'success');
+            showToast('Canale personalizzato aggiunto ai preferiti!', 'success');
+            
+            // Se siamo nella vista preferiti, aggiorna la visualizzazione
+            if (currentView === 'favorites') {
+                displayFavorites(currentPage);
+                updatePagination(favorites.length);
+            }
         }
         
         // Funzione di ricerca avanzata
@@ -1025,24 +1072,19 @@
                 const favoriteBtnTitle = isFavorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti';
                 
                 const qualityBadge = result.quality === 'HD' || result.quality === 'FHD' ? 
-                    `<span style="color:#d4b15c; margin-left:4px; background:rgba(255,255,255,0.12); padding:2px 5px; border-radius:8px; font-size:0.7rem;">
+                    `<span style="color:#d4b15c; margin-left:5px; background:rgba(255,255,255,0.12); padding:3px 8px; border-radius:12px; font-size:0.85rem;">
                         <i class="fas fa-hd-tv"></i> ${result.quality}
                     </span>` : '';
                 
                 const countryBadge = result.country ? 
-                    `<span style="margin-left:4px; background:rgba(255,255,255,0.12); padding:2px 5px; border-radius:8px; font-size:0.7rem;">
+                    `<span style="margin-left:5px; background:rgba(255,255,255,0.12); padding:3px 8px; border-radius:12px; font-size:0.85rem;">
                         <i class="fas fa-globe"></i> ${result.country.toUpperCase()}
-                    </span>` : '';
-                
-                const customBadge = result.category === 'Personalizzato' ? 
-                    `<span style="color:#8a6bc9; margin-left:4px; background:rgba(255,255,255,0.12); padding:2px 5px; border-radius:8px; font-size:0.7rem;">
-                        <i class="fas fa-user"></i> Personalizzato
                     </span>` : '';
                 
                 resultCard.innerHTML = `
                     <div class="channel-title">
                         <i class="fas fa-tv channel-icon"></i> ${result.title} 
-                        ${qualityBadge} ${countryBadge} ${customBadge}
+                        ${qualityBadge} ${countryBadge}
                     </div>
                     <div class="m3u8-link">${result.url}</div>
                     <div class="result-actions">
@@ -1105,7 +1147,7 @@
                 } else if (i === currentPage - 2 || i === currentPage + 2) {
                     const ellipsis = document.createElement('span');
                     ellipsis.textContent = '...';
-                    ellipsis.style.padding = '5px 3px';
+                    ellipsis.style.padding = '8px 5px';
                     pagination.appendChild(ellipsis);
                 }
             }
@@ -1149,39 +1191,40 @@
                 currentCard.classList.add('active');
             }
             
-            currentChannelName = title;
-            currentChannelTitle.textContent = title;
+            currentStream.textContent = `${title}\n${url}`;
             
-            // Se c'è un'istanza HLS esistente, distruggila
             if (hls) {
                 hls.destroy();
             }
             
-            // Imposta la sorgente del video
-            videoPlayer.src = url;
-            
-            // Se è un stream HLS, usa HLS.js
-            if (url.includes('.m3u8')) {
-                if (Hls.isSupported()) {
-                    hls = new Hls();
-                    hls.loadSource(url);
-                    hls.attachMedia(videoPlayer);
-                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                        videoPlayer.play();
+            if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                videoPlayer.src = url;
+                videoPlayer.play().catch(e => {
+                    console.error('Errore riproduzione:', e);
+                    showToast('Impossibile riprodurre lo stream', 'error');
+                });
+            } else if (Hls.isSupported()) {
+                hls = new Hls({
+                    debug: false,
+                    enableWorker: false
+                });
+                hls.loadSource(url);
+                hls.attachMedia(videoPlayer);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    videoPlayer.play().catch(e => {
+                        console.error('Errore riproduzione:', e);
+                        showToast('Impossibile riprodurre lo stream', 'error');
                     });
-                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                    // Supporto nativo per HLS (Safari)
-                    videoPlayer.play();
-                } else {
-                    showToast('Il browser non supporta la riproduzione di questo formato', 'error');
-                }
+                });
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    console.error('HLS error:', data);
+                    if (data.fatal) {
+                        showToast('Errore nel caricamento dello stream', 'error');
+                    }
+                });
             } else {
-                // Formati direttamente supportati (mp4, webm, etc.)
-                videoPlayer.play();
+                showToast('Browser non supporta riproduzione HLS', 'error');
             }
-            
-            // Riproduci il video con Plyr
-            player.play();
         }
 
         // Gestione Preferiti
@@ -1224,10 +1267,15 @@
                 resultCard.className = 'result-card';
                 resultCard.dataset.id = `fav-${index}`;
                 
+                // Aggiungi un'icona speciale per i canali personalizzati
+                const customBadge = fav.isCustom ? 
+                    `<span style="color:#2a8c85; margin-left:5px;"><i class="fas fa-user-plus"></i> Personalizzato</span>` : 
+                    `<span style="color:#d4b15c; margin-left:5px;"><i class="fas fa-heart"></i> Preferito</span>`;
+                
                 resultCard.innerHTML = `
                     <div class="channel-title">
                         <i class="fas fa-tv channel-icon"></i> ${fav.title}
-                        <span style="color:#d4b15c; margin-left:4px;"><i class="fas fa-heart"></i> Preferito</span>
+                        ${customBadge}
                     </div>
                     <div class="m3u8-link">${fav.url}</div>
                     <div class="result-actions">
@@ -1254,9 +1302,7 @@
             searchTab.classList.toggle('active', view === 'search');
             favoritesTab.classList.toggle('active', view === 'favorites');
             
-            // Mostra/nascondi sezione ricerca
-            searchBox.style.display = view === 'search' ? 'block' : 'none';
-            
+            // CORRETTO: Mostra i controlli preferiti SOLO nella vista Preferiti
             favoritesControls.style.display = view === 'favorites' ? 'flex' : 'none';
             
             resultsTitle.textContent = view === 'search' ? 'Risultati Ricerca' : 'Canali Preferiti';
