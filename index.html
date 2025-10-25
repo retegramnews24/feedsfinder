@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Iunior TV - Lettore Streaming</title>
-    <link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
         * {
             margin: 0;
@@ -70,15 +70,12 @@
         .player-wrapper {
             position: relative;
             width: 100%;
-            padding-top: 56.25%; /* Aspect ratio 16:9 */
         }
         
-        #videoPlayer {
-            position: absolute;
-            top: 0;
-            left: 0;
+        #player {
             width: 100%;
-            height: 100%;
+            height: auto;
+            border-radius: 0;
         }
         
         .info-panel {
@@ -175,6 +172,38 @@
             font-size: 0.9rem;
         }
         
+        .custom-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: none;
+        }
+        
+        .custom-fullscreen video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .close-fullscreen {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            z-index: 10001;
+            cursor: pointer;
+        }
+        
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -214,49 +243,19 @@
             }
         }
         
-        /* Stili personalizzati per Video.js */
-        .video-js .vjs-control-bar {
-            background: rgba(22, 33, 62, 0.9);
-            height: 40px;
+        /* Personalizzazione Plyr */
+        .plyr {
+            --plyr-color-main: #4361ee;
+            --plyr-control-radius: 8px;
         }
         
-        .video-js .vjs-button > .vjs-icon-placeholder:before {
-            line-height: 40px;
-        }
-        
-        .video-js .vjs-control-bar .vjs-control {
-            line-height: 40px;
-        }
-        
-        .video-js .vjs-play-progress,
-        .video-js .vjs-volume-level {
-            background: linear-gradient(90deg, #4cc9f0, #4361ee);
-        }
-        
-        .video-js .vjs-big-play-button {
+        .plyr--full-ui.plyr--video .plyr__control--overlaid {
             background: rgba(22, 33, 62, 0.7);
             border: 2px solid #4cc9f0;
-            border-radius: 50%;
-            width: 70px;
-            height: 70px;
-            line-height: 70px;
-            margin-top: -35px;
-            margin-left: -35px;
-            font-size: 2.5rem;
         }
         
-        .video-js:hover .vjs-big-play-button {
-            background: rgba(22, 33, 62, 0.9);
-        }
-        
-        /* Nascondi il pulsante PIP non supportato */
-        .video-js .vjs-picture-in-picture-control {
-            display: none !important;
-        }
-        
-        /* Miglioramenti per il pulsante fullscreen */
-        .video-js .vjs-fullscreen-control {
-            display: flex !important;
+        .plyr--video .plyr__controls {
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
         }
     </style>
 </head>
@@ -270,18 +269,11 @@
             
             <div class="player-wrapper">
                 <video 
-                    id="videoPlayer" 
-                    class="video-js vjs-default-skin vjs-big-play-centered"
-                    controls 
-                    preload="auto"
+                    id="player"
                     playsinline
-                    webkit-playsinline
-                    poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwMCIgaGVpZ2h0PSI5MDAiIHZpZXdCb3g9IjAgMCAxNjAwIDkwMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjE2MDAiIGhlaWdodD0iOTAwIiBmaWxsPSIjMUEyMDNDIi8+CjxwYXRoIGQ9Ik02MDAgNDUwTDEwMDAgMzAwVjYwMEw2MDAgNDUwWiIgZmlsbD0iIzQzNjFFRSIvPgo8L3N2Zz4K"
-                    data-setup='{}'>
+                    controls
+                    poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwMCIgaGVpZ2h0PSI5MDAiIHZpZXdCb3g9IjAgMCAxNjAwIDkwMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjE2MDAiIGhlaWdodD0iOTAwIiBmaWxsPSIjMUEyMDNDIi8+CjxwYXRoIGQ9Ik02MDAgNDUwTDEwMDAgMzAwVjYwMEw2MDAgNDUwWiIgZmlsbD0iIzQzNjFFRSIvPgo8L3N2Zz4K">
                     <source src="https://5f22d76e220e1.streamlock.net/iuniortv/iuniortv/playlist.m3u8" type="application/x-mpegURL">
-                    <p class="vjs-no-js">
-                        Per visualizzare il video abilita JavaScript o aggiorna il tuo browser.
-                    </p>
                 </video>
             </div>
             
@@ -328,40 +320,76 @@
                         <span class="control-icon">⛶</span>
                         <span>Schermo intero</span>
                     </div>
+                    <div class="control-item">
+                        <span class="control-icon">📺</span>
+                        <span>Anteprima PIP</span>
+                    </div>
                 </div>
             </div>
             
             <footer>
-                <p>Powered by Video.js | Compatibile con iOS, Android e tutti i browser moderni</p>
+                <p>Powered by Plyr | Compatibile con iOS, Android e tutti i browser moderni</p>
             </footer>
         </div>
     </div>
 
-    <script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
+    <!-- Schermo intero personalizzato -->
+    <div class="custom-fullscreen" id="customFullscreen">
+        <video id="fullscreenVideo" controls></video>
+        <button class="close-fullscreen" id="closeFullscreen">✕</button>
+    </div>
+
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
-        // Inizializzazione del player con configurazioni ottimizzate per Telegram
-        const player = videojs('videoPlayer', {
-            responsive: true,
-            fluid: true,
-            liveui: true,
-            html5: {
-                vhs: {
-                    overrideNative: !videojs.browser.IS_SAFARI,
-                    enableLowInitialPlaylist: true,
-                    smoothQualityChange: true,
-                    fastQualityChange: true
-                }
-            },
-            playbackRates: [0.5, 1, 1.25, 1.5, 2],
-            controlBar: {
-                pictureInPictureToggle: false // Disabilita PIP non supportato
-            }
+        // Inizializzazione del player Plyr
+        const player = new Plyr('#player', {
+            controls: [
+                'play-large',
+                'play',
+                'progress',
+                'current-time',
+                'mute',
+                'volume',
+                'settings',
+                'fullscreen'
+            ],
+            settings: ['quality', 'speed'],
+            seekTime: 10,
+            volume: 0.8,
+            clickToPlay: true,
+            disableContextMenu: false,
+            hideControls: true,
+            resetOnEnd: false,
+            keyboard: { focused: true, global: true },
+            tooltips: { controls: true, seek: true },
+            fullscreen: { enabled: true, fallback: true, iosNative: true }
         });
         
-        // Gestione errori
-        player.on('error', function() {
-            console.log('Errore nel caricamento del video');
-        });
+        // Inizializzazione HLS.js per il supporto streaming
+        const video = document.getElementById('player');
+        const videoSrc = 'https://5f22d76e220e1.streamlock.net/iuniortv/iuniortv/playlist.m3u8';
+        
+        if (Hls.isSupported()) {
+            const hls = new Hls({
+                enableWorker: false,
+                lowLatencyMode: true,
+                backBufferLength: 90
+            });
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+            
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                console.log('Stream HLS caricato correttamente');
+            });
+            
+            hls.on(Hls.Events.ERROR, function(event, data) {
+                console.error('Errore HLS:', data);
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Supporto nativo per HLS (Safari)
+            video.src = videoSrc;
+        }
         
         // Rilevamento dispositivo
         function detectDevice() {
@@ -373,12 +401,88 @@
             }
         }
         
+        // Schermo intero personalizzato
+        const customFullscreen = document.getElementById('customFullscreen');
+        const fullscreenVideo = document.getElementById('fullscreenVideo');
+        const closeFullscreen = document.getElementById('closeFullscreen');
+        
+        // Apri schermo intero personalizzato
+        function openCustomFullscreen() {
+            customFullscreen.style.display = 'block';
+            fullscreenVideo.src = videoSrc;
+            fullscreenVideo.play();
+            
+            // Blocca lo scorrimento della pagina
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Chiudi schermo intero personalizzato
+        function closeCustomFullscreen() {
+            customFullscreen.style.display = 'none';
+            fullscreenVideo.pause();
+            fullscreenVideo.src = '';
+            
+            // Ripristina lo scorrimento della pagina
+            document.body.style.overflow = '';
+        }
+        
+        // Gestione schermo intero nativo vs personalizzato
+        player.on('enterfullscreen', function() {
+            console.log('Schermo intero nativo attivato');
+        });
+        
+        player.on('exitfullscreen', function() {
+            console.log('Schermo intero nativo disattivato');
+        });
+        
+        // Gestione Picture-in-Picture
+        function togglePip() {
+            if (document.pictureInPictureElement) {
+                document.exitPictureInPicture()
+                    .catch(error => {
+                        console.error('Errore nell\'uscita dalla modalità PIP:', error);
+                    });
+            } else if (document.pictureInPictureEnabled) {
+                video.requestPictureInPicture()
+                    .catch(error => {
+                        console.error('Errore nell\'attivazione della modalità PIP:', error);
+                        alert('La modalità Picture-in-Picture non è supportata nel tuo browser');
+                    });
+            } else {
+                alert('La modalità Picture-in-Picture non è supportata nel tuo browser');
+            }
+        }
+        
+        // Aggiungi controllo PIP personalizzato
+        function addPipButton() {
+            const controls = document.querySelector('.plyr__controls');
+            if (controls && document.pictureInPictureEnabled) {
+                const pipButton = document.createElement('button');
+                pipButton.className = 'plyr__control';
+                pipButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 7h-8v8h8V7zm2-4H3c-1.1 0-2 .9-2 2v14c0 1.1.9 1.98 2 1.98h18c1.1 0 2-.88 2-1.98V5c0-1.1-.9-2-2-2zm0 16.01H3V4.98h18v14.03z"/></svg>';
+                pipButton.setAttribute('aria-label', 'Picture-in-Picture');
+                pipButton.setAttribute('data-plyr', 'pip');
+                pipButton.addEventListener('click', togglePip);
+                
+                // Inserisci il pulsante prima del pulsante impostazioni
+                const settingsButton = controls.querySelector('[data-plyr="settings"]');
+                if (settingsButton) {
+                    controls.insertBefore(pipButton, settingsButton);
+                } else {
+                    controls.appendChild(pipButton);
+                }
+            }
+        }
+        
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
             detectDevice();
             
-            // Tentativo di riproduzione automatica (con gestione errori)
-            player.ready(function() {
+            // Aggiungi il pulsante PIP dopo che il player è pronto
+            player.on('ready', function() {
+                addPipButton();
+                
+                // Tentativo di riproduzione automatica (con gestione errori)
                 const playPromise = player.play();
                 
                 if (playPromise !== undefined) {
@@ -388,21 +492,15 @@
                 }
             });
             
-            // Ottimizzazione per iOS - richiedi schermo intero quando l'utente interagisce
-            document.getElementById('videoPlayer').addEventListener('click', function() {
-                if (videojs.browser.IS_IOS) {
-                    this.webkitEnterFullscreen();
+            // Gestione chiusura schermo intero personalizzato
+            closeFullscreen.addEventListener('click', closeCustomFullscreen);
+            
+            // Chiudi schermo intero personalizzato con ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && customFullscreen.style.display === 'block') {
+                    closeCustomFullscreen();
                 }
             });
-        });
-        
-        // Gestione schermo intero personalizzata per iOS
-        player.on('fullscreenchange', function() {
-            if (player.isFullscreen()) {
-                console.log('Modalità schermo intero attivata');
-            } else {
-                console.log('Modalità schermo intero disattivata');
-            }
         });
     </script>
 </body>
