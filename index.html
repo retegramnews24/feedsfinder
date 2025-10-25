@@ -86,10 +86,22 @@
         .plyr {
             border-radius: 6px;
             height: 100%;
+            --plyr-control-icon-size: 16px;
+            --plyr-control-spacing: 8px;
+            --plyr-control-padding: 8px;
+            --plyr-control-radius: 4px;
+            --plyr-video-controls-background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            --plyr-video-control-color: white;
         }
         
         .plyr__controls {
-            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+        
+        .plyr__controls.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
         
         .plyr__control--overlaid {
@@ -100,8 +112,36 @@
             background: #237a74;
         }
         
-        .plyr--fullscreen-active .plyr__controls {
+        /* Schermo intero personalizzato */
+        .plyr--fullscreen-active {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 10000;
             border-radius: 0;
+            background: #000;
+        }
+        
+        .plyr--fullscreen-active .video-container {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 0;
+        }
+        
+        .plyr--fullscreen-active .plyr__video-wrapper {
+            height: 100% !important;
+        }
+        
+        .plyr--fullscreen-active video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain;
+        }
+        
+        .plyr--fullscreen-active .plyr__poster {
+            background-size: contain;
         }
         
         .search-box {
@@ -675,6 +715,16 @@
             .results-container {
                 grid-template-columns: 1fr;
             }
+            
+            /* Schermo intero mobile */
+            .plyr--fullscreen-active {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                z-index: 10000;
+            }
         }
         
         @media (min-width: 768px) {
@@ -932,6 +982,8 @@
         let currentChannelName = '';
         let player = null; // Per l'istanza Plyr
         let randomChannelAttempts = 0;
+        let controlsTimeout = null;
+        let isUserInteracting = false;
 
         // Funzione per mostrare toast notifications
         function showToast(message, type = 'info') {
@@ -952,6 +1004,58 @@
             }, 3000);
         }
 
+        // Gestione controlli che scompaiono dopo 3 secondi
+        function hideControls() {
+            if (player && player.elements.controls && !isUserInteracting) {
+                player.elements.controls.classList.add('hidden');
+            }
+        }
+
+        function showControls() {
+            if (player && player.elements.controls) {
+                player.elements.controls.classList.remove('hidden');
+                resetControlsTimer();
+            }
+        }
+
+        function resetControlsTimer() {
+            clearTimeout(controlsTimeout);
+            controlsTimeout = setTimeout(hideControls, 3000);
+        }
+
+        function setupControlsAutoHide() {
+            if (!player || !player.elements.controls) return;
+            
+            // Mostra i controlli all'inizio
+            showControls();
+            
+            // Eventi per interazione utente
+            player.elements.controls.addEventListener('mousemove', showControls);
+            player.elements.controls.addEventListener('touchstart', function() {
+                isUserInteracting = true;
+                showControls();
+                setTimeout(() => { isUserInteracting = false; }, 3000);
+            });
+            player.elements.controls.addEventListener('click', showControls);
+            
+            // Eventi del player
+            player.on('play', showControls);
+            player.on('pause', showControls);
+            player.on('seeking', showControls);
+            player.on('seeked', showControls);
+            
+            // Gestione schermo intero
+            player.on('enterfullscreen', function() {
+                // Reset timer quando si entra in fullscreen
+                showControls();
+            });
+            
+            player.on('exitfullscreen', function() {
+                // Reset timer quando si esce dal fullscreen
+                showControls();
+            });
+        }
+
         // Inizializzazione Plyr
         function initializePlyr() {
             player = new Plyr('#videoPlayer', {
@@ -963,10 +1067,18 @@
                     'duration', // Durata
                     'mute', // Muto
                     'volume', // Volume verticale
+                    'settings', // Impostazioni
                     'pip', // Picture-in-picture
                     'fullscreen', // Schermo intero
                 ],
-                hideControls: false,
+                hideControls: false, // Disabilitiamo il nascondimento automatico di Plyr
+                settings: ['quality', 'speed'],
+                storage: { enabled: false },
+                fullscreen: { 
+                    enabled: true, 
+                    fallback: true, 
+                    iosNative: true 
+                }
             });
 
             // Aggiungi un controllo personalizzato per stop
@@ -1011,6 +1123,9 @@
                     pipButton.style.display = 'none';
                 }
             }
+
+            // Setup per nascondere i controlli dopo 3 secondi
+            setupControlsAutoHide();
         }
 
         // Funzione per attivare/disattivare Picture-in-Picture
@@ -1072,7 +1187,8 @@
                         showToast(`Tentativo ${randomChannelAttempts} fallito. Nuovo tentativo...`, 'error');
                         setTimeout(playRandomChannel, 2000);
                     } else {
-                        showToast('Impossibile trovare un canale casuale. Riprova più tardi.', 'error');
+                        // Fallback a canale locale se i tentativi online falliscono
+                        playRandomLocalChannel();
                         randomChannelAttempts = 0;
                     }
                 });
@@ -1083,8 +1199,7 @@
             // Lista di repository IPTV pubblici
             const repositories = [
                 'https://iptv-org.github.io/api/streams.json',
-                'https://iptv-org.github.io/api/channels.json',
-                'https://raw.githubusercontent.com/iptv-org/iptv/master/streams.m3u'
+                'https://iptv-org.github.io/api/channels.json'
             ];
             
             // Scegli un repository casuale
@@ -1096,58 +1211,57 @@
                     throw new Error('Network response was not ok');
                 }
                 
-                let data;
-                if (randomRepo.endsWith('.json')) {
-                    data = await response.json();
-                } else {
-                    // Parsing di file M3U
-                    const m3uContent = await response.text();
-                    data = parseM3U(m3uContent);
-                }
+                const data = await response.json();
                 
                 // Se non ci sono canali, lancia un errore
                 if (!data || data.length === 0) {
                     throw new Error('No channels found');
                 }
                 
+                // Filtra solo i canali con URL validi
+                const validChannels = data.filter(channel => 
+                    channel.url && (channel.url.includes('.m3u8') || channel.url.includes('http'))
+                );
+                
+                if (validChannels.length === 0) {
+                    throw new Error('No valid channels found');
+                }
+                
                 // Scegli un canale casuale
-                const randomIndex = Math.floor(Math.random() * data.length);
-                const randomChannel = data[randomIndex];
+                const randomIndex = Math.floor(Math.random() * validChannels.length);
+                const randomChannel = validChannels[randomIndex];
                 
                 // Restituisci il canale in formato standard
                 return {
                     title: randomChannel.name || randomChannel.title || 'Canale Sconosciuto',
-                    url: randomChannel.url || randomChannel.link
+                    url: randomChannel.url
                 };
             } catch (error) {
                 throw new Error(`Failed to fetch from ${randomRepo}: ${error.message}`);
             }
         }
 
-        // Funzione per parsare file M3U
-        function parseM3U(m3uContent) {
-            const lines = m3uContent.split('\n');
-            const channels = [];
-            let currentChannel = {};
+        // Funzione di fallback per canale locale casuale
+        function playRandomLocalChannel() {
+            const availableChannels = Object.keys(CHANNEL_URLS);
             
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim();
-                
-                if (line.startsWith('#EXTINF:')) {
-                    // Estrai informazioni dal tag EXTINF
-                    const info = line.substring(8).split(',');
-                    currentChannel = {
-                        title: info[1] || 'Unknown Channel'
-                    };
-                } else if (line.startsWith('http')) {
-                    // Questa è l'URL del canale
-                    currentChannel.url = line;
-                    channels.push(currentChannel);
-                    currentChannel = {};
-                }
+            if (availableChannels.length === 0) {
+                showToast('Nessun canale disponibile', 'error');
+                return;
             }
             
-            return channels;
+            // Seleziona un canale casuale
+            const randomIndex = Math.floor(Math.random() * availableChannels.length);
+            const randomChannelName = availableChannels[randomIndex];
+            const randomChannelUrl = CHANNEL_URLS[randomChannelName];
+            
+            // Crea un ID univoco per il canale casuale
+            const randomId = 'random-' + randomChannelName.replace(/\s+/g, '-').toLowerCase();
+            
+            // Riproduci il canale
+            playStream(randomChannelUrl, randomChannelName, randomId);
+            
+            showToast(`Canale casuale: ${randomChannelName}`, 'success');
         }
 
         // Inizializzazione
@@ -1548,16 +1662,19 @@
                     hls.attachMedia(videoPlayer);
                     hls.on(Hls.Events.MANIFEST_PARSED, function() {
                         videoPlayer.play();
+                        showControls(); // Mostra i controlli quando il video inizia
                     });
                 } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
                     // Supporto nativo per HLS (Safari)
                     videoPlayer.play();
+                    showControls(); // Mostra i controlli quando il video inizia
                 } else {
                     showToast('Il browser non supporta la riproduzione di questo formato', 'error');
                 }
             } else {
                 // Formati direttamente supportati (mp4, webm, etc.)
                 videoPlayer.play();
+                showControls(); // Mostra i controlli quando il video inizia
             }
             
             // Riproduci il video con Plyr
