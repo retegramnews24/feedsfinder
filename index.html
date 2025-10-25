@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        /* I tuoi stili CSS rimangono invariati */
         * {
             margin: 0;
             padding: 0;
@@ -795,11 +794,9 @@
                     'duration', // Durata
                     'mute', // Muto
                     'volume', // Volume verticale
-                    'settings', // Impostazioni (se necessario)
-                    'pip', // Picture-in-picture (se supportato)
+                    'pip', // Picture-in-picture
                     'fullscreen', // Schermo intero
                 ],
-                settings: ['quality', 'speed'],
                 hideControls: false,
             });
 
@@ -814,6 +811,7 @@
             stopButton.addEventListener('click', function() {
                 player.pause();
                 player.currentTime = 0;
+                showToast('Riproduzione fermata', 'info');
             });
 
             // Aggiungere il bottone ai controlli
@@ -896,6 +894,19 @@
 
             // Gestore per aggiungere canale personalizzato
             addCustomBtn.addEventListener('click', addCustomChannel);
+            
+            // Aggiungi supporto per invio con Enter nei campi di input personalizzati
+            customUrlInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addCustomChannel();
+                }
+            });
+            
+            customNameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addCustomChannel();
+                }
+            });
 
             // Inizializza la vista ricerca
             switchView('search');
@@ -919,11 +930,13 @@
             
             if (!url) {
                 showToast('Inserisci un URL valido', 'error');
+                customUrlInput.focus();
                 return;
             }
             
             if (!name) {
                 showToast('Inserisci un nome per il canale', 'error');
+                customNameInput.focus();
                 return;
             }
             
@@ -932,6 +945,17 @@
                 new URL(url);
             } catch (e) {
                 showToast('URL non valido', 'error');
+                customUrlInput.focus();
+                return;
+            }
+            
+            // Controlla se l'URL è già presente nei risultati
+            const isDuplicate = currentResults.some(result => 
+                result.url === url || (result.title === name && result.category === 'Personalizzato')
+            );
+            
+            if (isDuplicate) {
+                showToast('Questo canale è già presente nei risultati', 'error');
                 return;
             }
             
@@ -955,6 +979,9 @@
             customNameInput.value = '';
             
             showToast('Canale personalizzato aggiunto!', 'success');
+            
+            // Ritorna il focus al campo URL per un nuovo inserimento
+            customUrlInput.focus();
         }
         
         // Funzione di ricerca avanzata
@@ -1009,32 +1036,6 @@
                     });
                 }
             });
-            
-            const additionalResults = generateAdditionalResults(query, 10);
-            return [...results, ...additionalResults];
-        }
-        
-        // Genera risultati aggiuntivi
-        function generateAdditionalResults(query, count) {
-            const results = [];
-            const categories = ['sport', 'news', 'movies', 'music', 'kids', 'entertainment'];
-            const countries = ['it', 'us', 'uk', 'fr', 'de', 'es', 'br', 'ru', 'jp'];
-            
-            for (let i = 1; i <= count; i++) {
-                const category = categories[Math.floor(Math.random() * categories.length)];
-                const country = countries[Math.floor(Math.random() * countries.length)];
-                const quality = ['SD', 'HD', 'FHD'][Math.floor(Math.random() * 3)];
-                
-                results.push({
-                    id: `gen-${query.replace(/\s+/g, '-').toLowerCase()}-${i}`,
-                    title: `${query} ${category} ${quality} Canale ${i}`,
-                    category: category,
-                    country: country,
-                    quality: quality,
-                    isLive: Math.random() > 0.2,
-                    url: generateRealisticStreamURL(country, category, query, i)
-                });
-            }
             
             return results;
         }
@@ -1151,13 +1152,13 @@
                     </div>
                     <div class="m3u8-link">${result.url}</div>
                     <div class="result-actions">
-                        <button class="action-btn copy" onclick="copyToClipboard('${result.url}')" title="Copia link">
+                        <button class="action-btn copy" onclick="copyToClipboard('${result.url.replace(/'/g, "\\'")}')" title="Copia link">
                             <i class="fas fa-copy"></i>
                         </button>
-                        <button class="action-btn play" onclick="playStream('${result.url}', '${result.title}', ${result.id})" title="Riproduci">
+                        <button class="action-btn play" onclick="playStream('${result.url.replace(/'/g, "\\'")}', '${result.title.replace(/'/g, "\\'")}', '${result.id}')" title="Riproduci">
                             <i class="fas fa-play"></i>
                         </button>
-                        <button class="action-btn ${favoriteBtnClass}" onclick="toggleFavorite('${result.url}', '${result.title.replace(/'/g, "\\'")}')" title="${favoriteBtnTitle}">
+                        <button class="action-btn ${favoriteBtnClass}" onclick="toggleFavorite('${result.url.replace(/'/g, "\\'")}', '${result.title.replace(/'/g, "\\'")}')" title="${favoriteBtnTitle}">
                             <i class="${favoriteBtnIcon}"></i>
                         </button>
                     </div>
@@ -1287,6 +1288,8 @@
             
             // Riproduci il video con Plyr
             player.play();
+            
+            showToast(`Riproducendo: ${title}`, 'success');
         }
 
         // Gestione Preferiti
@@ -1336,13 +1339,13 @@
                     </div>
                     <div class="m3u8-link">${fav.url}</div>
                     <div class="result-actions">
-                        <button class="action-btn copy" onclick="copyToClipboard('${fav.url}')" title="Copia link">
+                        <button class="action-btn copy" onclick="copyToClipboard('${fav.url.replace(/'/g, "\\'")}')" title="Copia link">
                             <i class="fas fa-copy"></i>
                         </button>
-                        <button class="action-btn play" onclick="playStream('${fav.url}', '${fav.title}', 'fav-${index}')" title="Riproduci">
+                        <button class="action-btn play" onclick="playStream('${fav.url.replace(/'/g, "\\'")}', '${fav.title.replace(/'/g, "\\'")}', 'fav-${index}')" title="Riproduci">
                             <i class="fas fa-play"></i>
                         </button>
-                        <button class="action-btn favorite active" onclick="toggleFavorite('${fav.url}', '${fav.title.replace(/'/g, "\\'")}')" title="Rimuovi dai preferiti">
+                        <button class="action-btn favorite active" onclick="toggleFavorite('${fav.url.replace(/'/g, "\\'")}', '${fav.title.replace(/'/g, "\\'")}')" title="Rimuovi dai preferiti">
                             <i class="fas fa-heart"></i>
                         </button>
                     </div>
