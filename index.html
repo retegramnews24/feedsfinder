@@ -104,32 +104,6 @@
             border-radius: 0;
         }
         
-        /* Fix per fullscreen su mobile */
-        .plyr:-webkit-full-screen .video-container,
-        .plyr:-moz-full-screen .video-container,
-        .plyr:-ms-fullscreen .video-container,
-        .plyr:fullscreen .video-container {
-            width: 100% !important;
-            height: 100% !important;
-            border-radius: 0 !important;
-        }
-        
-        .plyr:-webkit-full-screen .plyr__video-wrapper,
-        .plyr:-moz-full-screen .plyr__video-wrapper,
-        .plyr:-ms-fullscreen .plyr__video-wrapper,
-        .plyr:fullscreen .plyr__video-wrapper {
-            height: 100% !important;
-        }
-        
-        .plyr:-webkit-full-screen video,
-        .plyr:-moz-full-screen video,
-        .plyr:-ms-fullscreen video,
-        .plyr:fullscreen video {
-            object-fit: contain !important;
-            width: 100% !important;
-            height: 100% !important;
-        }
-        
         .search-box {
             background: rgba(30, 30, 45, 0.8);
             backdrop-filter: blur(10px);
@@ -191,10 +165,11 @@
             gap: 6px;
             flex-wrap: nowrap;
             width: 100%;
+            min-width: 0;
         }
         
         .custom-url-input {
-            flex: 1;
+            flex: 2;
             padding: 7px 10px;
             border: none;
             border-radius: 6px;
@@ -204,6 +179,9 @@
             color: #f0f0f0;
             border: 1px solid rgba(255, 255, 255, 0.12);
             min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .custom-name-input {
@@ -217,6 +195,9 @@
             color: #f0f0f0;
             border: 1px solid rgba(255, 255, 255, 0.12);
             min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .add-custom-btn {
@@ -237,6 +218,7 @@
             background: #2a8c85;
             white-space: nowrap;
             min-width: fit-content;
+            flex-shrink: 0;
         }
         
         .add-custom-btn:hover { background: #237a74; transform: translateY(-1px); }
@@ -494,38 +476,34 @@
             
             .search-form, .custom-url-form {
                 flex-wrap: nowrap;
-                overflow-x: auto;
+                overflow-x: hidden;
             }
             
             .search-input, .search-btn,
             .custom-url-input, .custom-name-input, .add-custom-btn {
                 min-width: 0;
                 margin-bottom: 0;
-                flex-shrink: 0;
+                flex-shrink: 1;
             }
             
             .search-input {
-                min-width: 150px;
+                min-width: 0;
             }
             
             .custom-url-input, .custom-name-input {
-                min-width: 120px;
+                min-width: 0;
             }
             
-            /* Miglioramenti per la riga di inserimento URL su mobile */
-            .custom-url-form {
-                flex-wrap: wrap;
-                gap: 4px;
+            .custom-url-input {
+                flex: 3;
             }
             
-            .custom-url-input, .custom-name-input {
-                flex: 1 1 100%;
-                min-width: 100%;
+            .custom-name-input {
+                flex: 2;
             }
             
             .add-custom-btn {
-                flex: 1 1 100%;
-                min-width: 100%;
+                flex-shrink: 0;
             }
             
             .favorites-controls, .result-actions {
@@ -619,7 +597,7 @@
             </form>
             
             <div class="custom-url-form">
-                <input type="text" class="custom-url-input" id="customUrlInput" placeholder="URL stream personalizzato">
+                <input type="text" class="custom-url-input" id="customUrlInput" placeholder="Inserisci URL stream personalizzato">
                 <input type="text" class="custom-name-input" id="customNameInput" placeholder="Nome del canale">
                 <button type="button" class="add-custom-btn" id="addCustomBtn"><i class="fas fa-plus"></i> Aggiungi</button>
             </div>
@@ -693,60 +671,6 @@
         let currentView = 'search';
         let currentChannelName = '';
         let player = null; // Per l'istanza Plyr
-        
-        // Database di canali per la ricerca offline
-        const CHANNEL_DATABASE = [
-            { name: "Rai 1", categories: ["general", "news"], country: "it" },
-            { name: "Rai 2", categories: ["entertainment", "sport"], country: "it" },
-            { name: "Rai 3", categories: ["general", "culture"], country: "it" },
-            { name: "Canale 5", categories: ["entertainment", "news"], country: "it" },
-            { name: "Italia 1", categories: ["entertainment", "kids"], country: "it" },
-            { name: "Rete 4", categories: ["entertainment", "news"], country: "it" },
-            { name: "La7", categories: ["news", "general"], country: "it" },
-            { name: "Sky Sport", categories: ["sport"], country: "it" },
-            { name: "Sky Cinema", categories: ["movies"], country: "it" },
-            { name: "MTV", categories: ["music"], country: "it" },
-            { name: "BBC One", categories: ["general", "news"], country: "uk" },
-            { name: "BBC Two", categories: ["entertainment", "documentary"], country: "uk" },
-            { name: "ITV", categories: ["general", "entertainment"], country: "uk" },
-            { name: "Channel 4", categories: ["entertainment", "news"], country: "uk" },
-            { name: "CNN", categories: ["news"], country: "us" },
-            { name: "Fox News", categories: ["news"], country: "us" },
-            { name: "ESPN", categories: ["sport"], country: "us" },
-            { name: "HBO", categories: ["movies", "entertainment"], country: "us" },
-            { name: "Cartoon Network", categories: ["kids"], country: "us" },
-            { name: "Disney Channel", categories: ["kids", "entertainment"], country: "us" },
-            { name: "National Geographic", categories: ["documentary"], country: "us" },
-            { name: "Discovery Channel", categories: ["documentary"], country: "us" },
-            { name: "TVP 1", categories: ["general"], country: "pl" },
-            { name: "TVN", categories: ["general"], country: "pl" },
-            { name: "Polsat", categories: ["general"], country: "pl" },
-            { name: "TF1", categories: ["general"], country: "fr" },
-            { name: "France 2", categories: ["general"], country: "fr" },
-            { name: "M6", categories: ["entertainment"], country: "fr" },
-            { name: "ARD", categories: ["general"], country: "de" },
-            { name: "ZDF", categories: ["general"], country: "de" },
-            { name: "RTL", categories: ["entertainment"], country: "de" },
-            { name: "TVE", categories: ["general"], country: "es" },
-            { name: "Antena 3", categories: ["general"], country: "es" },
-            { name: "Telecinco", categories: ["entertainment"], country: "es" },
-            { name: "CCTV-1", categories: ["general"], country: "cn" },
-            { name: "CCTV-5", categories: ["sport"], country: "cn" },
-            { name: "NHK", categories: ["general"], country: "jp" },
-            { name: "Fuji TV", categories: ["entertainment"], country: "jp" },
-            { name: "SBS", categories: ["general"], country: "kr" },
-            { name: "KBS", categories: ["general"], country: "kr" },
-            { name: "RTRS", categories: ["general"], country: "ru" },
-            { name: "Channel One", categories: ["general"], country: "ru" },
-            { name: "NTV", categories: ["news"], country: "ru" },
-            { name: "Globo", categories: ["general"], country: "br" },
-            { name: "Record", categories: ["general"], country: "br" },
-            { name: "SBT", categories: ["entertainment"], country: "br" },
-            { name: "ABC", categories: ["general"], country: "au" },
-            { name: "Seven Network", categories: ["general"], country: "au" },
-            { name: "Nine Network", categories: ["general"], country: "au" },
-            { name: "Ten Network", categories: ["entertainment"], country: "au" }
-        ];
 
         // Funzione per mostrare toast notifications
         function showToast(message, type = 'info') {
@@ -784,11 +708,6 @@
                 ],
                 settings: ['quality', 'speed'],
                 hideControls: false,
-                fullscreen: {
-                    enabled: true,
-                    fallback: true,
-                    iosNative: true
-                }
             });
 
             // Aggiungi un controllo personalizzato per stop
@@ -813,22 +732,6 @@
                     playButton.parentNode.insertBefore(stopButton, playButton.nextSibling);
                 }
             }
-            
-            // Gestione eventi fullscreen per mobile
-            player.on('enterfullscreen', function() {
-                document.body.style.overflow = 'hidden';
-                // Forza il ridimensionamento per mobile
-                setTimeout(function() {
-                    videoPlayer.style.width = '100%';
-                    videoPlayer.style.height = '100%';
-                }, 100);
-            });
-            
-            player.on('exitfullscreen', function() {
-                document.body.style.overflow = '';
-                videoPlayer.style.width = '';
-                videoPlayer.style.height = '';
-            });
         }
 
         // Inizializzazione
@@ -1074,7 +977,7 @@
                 resultCard.dataset.id = result.id;
                 
                 const isFavorite = favorites.some(fav => fav.url === result.url);
-                const favoriteBtnClass = isFavorite ? 'favorite active' : 'favorite';
+                const favoriteBtnClass = isFavorite ? 'favorite-btn active' : 'favorite-btn';
                 const favoriteBtnIcon = isFavorite ? 'fas fa-heart' : 'far fa-heart';
                 const favoriteBtnTitle = isFavorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti';
                 
