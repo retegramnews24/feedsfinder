@@ -463,6 +463,163 @@
         .toast.success { border-left-color: #2a8c85; }
         .toast.error { border-left-color: #c55c5c; }
         
+        /* Stili per il badge LIVE STREAM */
+        .live-badge {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: 
+                radial-gradient(
+                    circle at 30% 30%,
+                    #ff3333 0%,
+                    #cc0000 25%,
+                    #990000 60%,
+                    #660000 100%
+                );
+            position: relative;
+            box-shadow: 
+                inset 0.5px 0.5px 1.5px rgba(255, 255, 255, 0.2),
+                inset -1px -1px 2.5px rgba(0, 0, 0, 0.7),
+                0 1px 3px rgba(255, 0, 0, 0.4),
+                0 0 0 0.5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .live-badge:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                inset 0.5px 0.5px 2px rgba(255, 255, 255, 0.3),
+                inset -1px -1px 3px rgba(0, 0, 0, 0.8),
+                0 1.5px 4px rgba(255, 0, 0, 0.6),
+                0 0 0 0.5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .live-badge .text-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            text-align: center;
+            transform: scale(0.9); /* Leggera riduzione per adattarsi meglio */
+        }
+        
+        .live-badge .live-text {
+            font-size: 8px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 
+                0 0.5px 1px rgba(0, 0, 0, 0.8),
+                0 -0.5px 0.5px rgba(255, 255, 255, 0.3);
+            line-height: 1;
+            letter-spacing: 0.8px;
+            margin-bottom: 0.5px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        
+        .live-badge .stream-text {
+            font-size: 4.5px;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.8);
+            line-height: 1;
+            letter-spacing: 0.4px;
+            animation: pulse 2s infinite ease-in-out 0.3s;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.9;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+        
+        /* Riflesso principale */
+        .live-badge .key-light {
+            position: absolute;
+            top: 15%;
+            left: 15%;
+            width: 9px;
+            height: 4.5px;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(255, 255, 255, 0.5) 40%,
+                rgba(255, 255, 255, 0) 70%
+            );
+            border-radius: 50%;
+            transform: rotate(-30deg);
+            filter: blur(0.25px);
+            z-index: 2;
+        }
+        
+        /* Riflesso secondario */
+        .live-badge .fill-light {
+            position: absolute;
+            bottom: 20%;
+            right: 20%;
+            width: 7px;
+            height: 3.5px;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(255, 255, 255, 0.6) 0%,
+                rgba(255, 255, 255, 0.3) 40%,
+                rgba(255, 255, 255, 0) 70%
+            );
+            border-radius: 50%;
+            transform: rotate(120deg);
+            filter: blur(0.25px);
+            z-index: 2;
+        }
+        
+        /* Bagliore speculare */
+        .live-badge .specular-highlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle at 25% 25%,
+                rgba(255, 220, 220, 0.5) 0%,
+                rgba(255, 180, 180, 0.3) 15%,
+                rgba(255, 100, 100, 0.1) 30%,
+                rgba(255, 0, 0, 0) 50%
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Controluce */
+        .live-badge .rim-light {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle at 75% 75%,
+                rgba(255, 180, 180, 0.3) 0%,
+                rgba(255, 130, 130, 0.15) 20%,
+                rgba(255, 80, 80, 0.05) 35%,
+                rgba(255, 0, 0, 0) 50%
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+        
         /* Ottimizzazioni per mobile */
         @media (max-width: 768px) {
             body {
@@ -579,7 +736,17 @@
         <div class="player-section">
             <div class="player-header">
                 <div class="player-title">
-                    <i class="fas fa-satellite-dish"></i> Feeds Finder
+                    <div class="live-badge" id="randomChannelBtn">
+                        <div class="specular-highlight"></div>
+                        <div class="rim-light"></div>
+                        <div class="key-light"></div>
+                        <div class="fill-light"></div>
+                        <div class="text-container">
+                            <div class="live-text">LIVE</div>
+                            <div class="stream-text">STREAM</div>
+                        </div>
+                    </div>
+                    Feeds Finder
                 </div>
                 <div class="current-channel-title" id="currentChannelTitle"></div>
             </div>
@@ -753,6 +920,7 @@
         const customNameInput = document.getElementById('customNameInput');
         const addCustomBtn = document.getElementById('addCustomBtn');
         const searchBox = document.getElementById('searchBox');
+        const randomChannelBtn = document.getElementById('randomChannelBtn');
         
         // Variabili globali
         let currentResults = [];
@@ -879,6 +1047,30 @@
             }
         }
 
+        // Funzione per riprodurre un canale casuale
+        function playRandomChannel() {
+            // Ottieni tutti i canali disponibili
+            const availableChannels = Object.keys(CHANNEL_URLS);
+            
+            if (availableChannels.length === 0) {
+                showToast('Nessun canale disponibile', 'error');
+                return;
+            }
+            
+            // Seleziona un canale casuale
+            const randomIndex = Math.floor(Math.random() * availableChannels.length);
+            const randomChannelName = availableChannels[randomIndex];
+            const randomChannelUrl = CHANNEL_URLS[randomChannelName];
+            
+            // Crea un ID univoco per il canale casuale
+            const randomId = 'random-' + randomChannelName.replace(/\s+/g, '-').toLowerCase();
+            
+            // Riproduci il canale
+            playStream(randomChannelUrl, randomChannelName, randomId);
+            
+            showToast(`Canale casuale: ${randomChannelName}`, 'success');
+        }
+
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
             initializePlyr();
@@ -894,6 +1086,9 @@
 
             // Gestore per aggiungere canale personalizzato
             addCustomBtn.addEventListener('click', addCustomChannel);
+            
+            // Gestore per canale casuale
+            randomChannelBtn.addEventListener('click', playRandomChannel);
             
             // Aggiungi supporto per invio con Enter nei campi di input personalizzati
             customUrlInput.addEventListener('keypress', function(e) {
