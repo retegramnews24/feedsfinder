@@ -152,21 +152,13 @@
         
         .search-form {
             display: flex;
-            flex-direction: column;
             gap: 15px;
-        }
-        
-        /* MODIFICHE PER LE RIGHE DI RICERCA E INSERIMENTO URL */
-        .search-row {
-            display: flex;
-            gap: 15px;
-            width: 100%;
-            flex-wrap: nowrap; /* Impedisce il wrap */
+            flex-wrap: wrap;
         }
         
         .search-input {
             flex: 1;
-            min-width: 0;
+            min-width: 280px;
             padding: 16px 18px;
             border: none;
             border-radius: 10px;
@@ -182,7 +174,6 @@
         }
         
         .search-btn {
-            flex: 1;
             padding: 16px 28px;
             border: none;
             border-radius: 10px;
@@ -210,59 +201,6 @@
         }
         
         .search-btn:active {
-            transform: translateY(0);
-        }
-        
-        /* Nuovo stile per la riga degli URL personalizzati */
-        .custom-url-row {
-            display: flex;
-            gap: 15px;
-            width: 100%;
-            flex-wrap: nowrap; /* Impedisce il wrap */
-        }
-        
-        .custom-url-input, .custom-channel-input {
-            flex: 1;
-            min-width: 0;
-            padding: 16px 18px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(50, 50, 65, 0.9);
-            font-size: 1.25rem;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-            color: #f0f0f0;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-        
-        .custom-url-input::placeholder, .custom-channel-input::placeholder {
-            color: #999;
-        }
-        
-        .save-custom-btn {
-            flex: 1;
-            padding: 16px 28px;
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 1.25rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-            height: 54px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: #2a8c85; /* Verde acqua */
-        }
-        
-        .save-custom-btn:hover {
-            background: #237a74;
-            transform: translateY(-2px);
-        }
-        
-        .save-custom-btn:active {
             transform: translateY(0);
         }
 
@@ -560,7 +498,7 @@
             border-left-color: #c55c5c;
         }
         
-        /* MODIFICA DELLA MEDIA QUERY MOBILE */
+        /* Mobile optimizations */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -570,17 +508,12 @@
                 top: 10px;
             }
             
-            .search-row, .custom-url-row {
-                flex-direction: row; /* Mantiene la direzione orizzontale */
-                flex-wrap: nowrap; /* Impedisce il wrap */
-                overflow-x: auto; /* Permette lo scrolling orizzontale se necessario */
-                gap: 10px; /* Riduce leggermente il gap */
+            .search-form {
+                flex-direction: column;
             }
             
-            .search-input, .search-btn, .custom-url-input, .custom-channel-input, .save-custom-btn {
-                width: auto;
-                flex: 1 0 auto; /* Impedisce la riduzione eccessiva */
-                min-width: 200px; /* Larghezza minima per mantenere l'usabilità */
+            .search-input, .search-btn {
+                width: 100%;
             }
             
             .video-container {
@@ -614,32 +547,28 @@
                 text-align: center;
             }
 
+            /* CORRETTO: Rimossa la proprietà flex-direction: column */
+            .favorites-controls {
+                /* flex-direction: column; RIMOSSO */
+            }
+
             .player-controls {
                 flex-wrap: wrap;
             }
         }
         
-        /* MODIFICA PER SCHEMI MOLTO PICCOLI */
         @media (max-width: 480px) {
-            .search-row, .custom-url-row {
-                gap: 8px; /* Riduce ulteriormente il gap */
-            }
-            
-            .search-input, .search-btn, 
-            .custom-url-input, .custom-channel-input, 
-            .save-custom-btn {
-                min-width: 180px; /* Leggermente più piccolo per schermi molto piccoli */
-                font-size: 1.1rem; /* Leggermente più piccolo il font */
-                padding: 14px 16px; /* Riduce il padding */
-                height: 50px; /* Riduce l'altezza */
-            }
-
             .result-actions {
                 flex-wrap: wrap;
             }
 
             .action-btn {
                 min-width: 45%;
+            }
+
+            /* CORRETTO: Su schermi molto piccoli, manteniamo i pulsanti in riga */
+            .favorites-controls {
+                flex-wrap: nowrap;
             }
 
             .favorites-btn {
@@ -677,15 +606,8 @@
             
             <div class="search-box">
                 <form class="search-form" id="searchForm">
-                    <div class="search-row">
-                        <input type="text" class="search-input" id="searchQuery" placeholder="Cerca canali TV, sport, news, film...">
-                        <button type="submit" class="search-btn"><i class="fas fa-search"></i> Cerca Canali</button>
-                    </div>
-                    <div class="custom-url-row">
-                        <input type="text" class="custom-url-input" id="customUrlInput" placeholder="Incolla URL m3u8 personalizzato">
-                        <input type="text" class="custom-channel-input" id="customChannelNameInput" placeholder="Nome del canale (opzionale)">
-                        <button type="button" class="save-custom-btn" id="saveCustomChannelBtn"><i class="fas fa-plus"></i> Aggiungi Canale</button>
-                    </div>
+                    <input type="text" class="search-input" id="searchQuery" placeholder="Cerca canali TV, sport, news, film...">
+                    <button type="submit" class="search-btn"><i class="fas fa-search"></i> Cerca Canali</button>
                 </form>
             </div>
         </div>
@@ -748,11 +670,6 @@
         const exportFavoritesBtn = document.getElementById('exportFavoritesBtn');
         const clearFavoritesBtn = document.getElementById('clearFavoritesBtn');
         const toastContainer = document.getElementById('toastContainer');
-        
-        // Nuovi elementi per URL personalizzati
-        const customUrlInput = document.getElementById('customUrlInput');
-        const customChannelNameInput = document.getElementById('customChannelNameInput');
-        const saveCustomChannelBtn = document.getElementById('saveCustomChannelBtn');
         
         // Variabili globali
         let currentResults = [];
@@ -853,9 +770,6 @@
             exportFavoritesBtn.addEventListener('click', exportFavorites);
             clearFavoritesBtn.addEventListener('click', clearFavorites);
 
-            // Gestore per URL personalizzati
-            saveCustomChannelBtn.addEventListener('click', saveCustomChannel);
-
             // Inizializza la vista ricerca
             switchView('search');
         });
@@ -870,57 +784,6 @@
                 searchM3U8(query);
             }
         });
-        
-        // Funzione per salvare URL personalizzato
-        function saveCustomChannel() {
-            const url = customUrlInput.value.trim();
-            let channelName = customChannelNameInput.value.trim();
-            
-            if (!url) {
-                showToast('Inserisci un URL valido', 'error');
-                return;
-            }
-            
-            // Verifica che l'URL inizi con http:// o https://
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                showToast('Inserisci un URL valido (deve iniziare con http:// o https://)', 'error');
-                return;
-            }
-            
-            // Se il nome del canale è vuoto, usa l'URL come nome
-            if (!channelName) {
-                channelName = url;
-            }
-            
-            // Verifica se l'URL è già nei preferiti
-            const existingIndex = favorites.findIndex(fav => fav.url === url);
-            
-            if (existingIndex > -1) {
-                showToast('Questo URL è già nei preferiti!', 'info');
-                return;
-            }
-            
-            // Aggiungi ai preferiti
-            favorites.push({ 
-                url: url, 
-                title: channelName,
-                isCustom: true
-            });
-            
-            localStorage.setItem('m3u8_favorites', JSON.stringify(favorites));
-            
-            // Pulisci i campi
-            customUrlInput.value = '';
-            customChannelNameInput.value = '';
-            
-            showToast('Canale personalizzato aggiunto ai preferiti!', 'success');
-            
-            // Se siamo nella vista preferiti, aggiorna la visualizzazione
-            if (currentView === 'favorites') {
-                displayFavorites(currentPage);
-                updatePagination(favorites.length);
-            }
-        }
         
         // Funzione di ricerca avanzata
         async function searchM3U8(query) {
@@ -1289,15 +1152,10 @@
                 resultCard.className = 'result-card';
                 resultCard.dataset.id = `fav-${index}`;
                 
-                // Aggiungi un'icona speciale per i canali personalizzati
-                const customBadge = fav.isCustom ? 
-                    `<span style="color:#2a8c85; margin-left:5px;"><i class="fas fa-user-plus"></i> Personalizzato</span>` : 
-                    `<span style="color:#d4b15c; margin-left:5px;"><i class="fas fa-heart"></i> Preferito</span>`;
-                
                 resultCard.innerHTML = `
                     <div class="channel-title">
                         <i class="fas fa-tv channel-icon"></i> ${fav.title}
-                        ${customBadge}
+                        <span style="color:#d4b15c; margin-left:5px;"><i class="fas fa-heart"></i> Preferito</span>
                     </div>
                     <div class="m3u8-link">${fav.url}</div>
                     <div class="result-actions">
