@@ -152,14 +152,16 @@
         
         .search-form {
             display: flex;
+            flex-direction: column;
             gap: 15px;
-            flex-wrap: wrap;
         }
         
+        /* MODIFICHE PER LE RIGHE DI RICERCA E INSERIMENTO URL */
         .search-row {
             display: flex;
             gap: 15px;
             width: 100%;
+            flex-wrap: nowrap; /* Impedisce il wrap */
         }
         
         .search-input {
@@ -216,6 +218,7 @@
             display: flex;
             gap: 15px;
             width: 100%;
+            flex-wrap: nowrap; /* Impedisce il wrap */
         }
         
         .custom-url-input, .custom-channel-input {
@@ -557,7 +560,7 @@
             border-left-color: #c55c5c;
         }
         
-        /* Mobile optimizations */
+        /* MODIFICA DELLA MEDIA QUERY MOBILE */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -568,11 +571,16 @@
             }
             
             .search-row, .custom-url-row {
-                flex-direction: column;
+                flex-direction: row; /* Mantiene la direzione orizzontale */
+                flex-wrap: nowrap; /* Impedisce il wrap */
+                overflow-x: auto; /* Permette lo scrolling orizzontale se necessario */
+                gap: 10px; /* Riduce leggermente il gap */
             }
             
             .search-input, .search-btn, .custom-url-input, .custom-channel-input, .save-custom-btn {
-                width: 100%;
+                width: auto;
+                flex: 1 0 auto; /* Impedisce la riduzione eccessiva */
+                min-width: 200px; /* Larghezza minima per mantenere l'usabilità */
             }
             
             .video-container {
@@ -611,7 +619,21 @@
             }
         }
         
+        /* MODIFICA PER SCHEMI MOLTO PICCOLI */
         @media (max-width: 480px) {
+            .search-row, .custom-url-row {
+                gap: 8px; /* Riduce ulteriormente il gap */
+            }
+            
+            .search-input, .search-btn, 
+            .custom-url-input, .custom-channel-input, 
+            .save-custom-btn {
+                min-width: 180px; /* Leggermente più piccolo per schermi molto piccoli */
+                font-size: 1.1rem; /* Leggermente più piccolo il font */
+                padding: 14px 16px; /* Riduce il padding */
+                height: 50px; /* Riduce l'altezza */
+            }
+
             .result-actions {
                 flex-wrap: wrap;
             }
