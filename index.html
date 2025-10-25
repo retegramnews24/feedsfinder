@@ -693,6 +693,60 @@
         let currentView = 'search';
         let currentChannelName = '';
         let player = null; // Per l'istanza Plyr
+        
+        // Database di canali per la ricerca offline
+        const CHANNEL_DATABASE = [
+            { name: "Rai 1", categories: ["general", "news"], country: "it" },
+            { name: "Rai 2", categories: ["entertainment", "sport"], country: "it" },
+            { name: "Rai 3", categories: ["general", "culture"], country: "it" },
+            { name: "Canale 5", categories: ["entertainment", "news"], country: "it" },
+            { name: "Italia 1", categories: ["entertainment", "kids"], country: "it" },
+            { name: "Rete 4", categories: ["entertainment", "news"], country: "it" },
+            { name: "La7", categories: ["news", "general"], country: "it" },
+            { name: "Sky Sport", categories: ["sport"], country: "it" },
+            { name: "Sky Cinema", categories: ["movies"], country: "it" },
+            { name: "MTV", categories: ["music"], country: "it" },
+            { name: "BBC One", categories: ["general", "news"], country: "uk" },
+            { name: "BBC Two", categories: ["entertainment", "documentary"], country: "uk" },
+            { name: "ITV", categories: ["general", "entertainment"], country: "uk" },
+            { name: "Channel 4", categories: ["entertainment", "news"], country: "uk" },
+            { name: "CNN", categories: ["news"], country: "us" },
+            { name: "Fox News", categories: ["news"], country: "us" },
+            { name: "ESPN", categories: ["sport"], country: "us" },
+            { name: "HBO", categories: ["movies", "entertainment"], country: "us" },
+            { name: "Cartoon Network", categories: ["kids"], country: "us" },
+            { name: "Disney Channel", categories: ["kids", "entertainment"], country: "us" },
+            { name: "National Geographic", categories: ["documentary"], country: "us" },
+            { name: "Discovery Channel", categories: ["documentary"], country: "us" },
+            { name: "TVP 1", categories: ["general"], country: "pl" },
+            { name: "TVN", categories: ["general"], country: "pl" },
+            { name: "Polsat", categories: ["general"], country: "pl" },
+            { name: "TF1", categories: ["general"], country: "fr" },
+            { name: "France 2", categories: ["general"], country: "fr" },
+            { name: "M6", categories: ["entertainment"], country: "fr" },
+            { name: "ARD", categories: ["general"], country: "de" },
+            { name: "ZDF", categories: ["general"], country: "de" },
+            { name: "RTL", categories: ["entertainment"], country: "de" },
+            { name: "TVE", categories: ["general"], country: "es" },
+            { name: "Antena 3", categories: ["general"], country: "es" },
+            { name: "Telecinco", categories: ["entertainment"], country: "es" },
+            { name: "CCTV-1", categories: ["general"], country: "cn" },
+            { name: "CCTV-5", categories: ["sport"], country: "cn" },
+            { name: "NHK", categories: ["general"], country: "jp" },
+            { name: "Fuji TV", categories: ["entertainment"], country: "jp" },
+            { name: "SBS", categories: ["general"], country: "kr" },
+            { name: "KBS", categories: ["general"], country: "kr" },
+            { name: "RTRS", categories: ["general"], country: "ru" },
+            { name: "Channel One", categories: ["general"], country: "ru" },
+            { name: "NTV", categories: ["news"], country: "ru" },
+            { name: "Globo", categories: ["general"], country: "br" },
+            { name: "Record", categories: ["general"], country: "br" },
+            { name: "SBT", categories: ["entertainment"], country: "br" },
+            { name: "ABC", categories: ["general"], country: "au" },
+            { name: "Seven Network", categories: ["general"], country: "au" },
+            { name: "Nine Network", categories: ["general"], country: "au" },
+            { name: "Ten Network", categories: ["entertainment"], country: "au" }
+        ];
 
         // Funzione per mostrare toast notifications
         function showToast(message, type = 'info') {
@@ -1020,7 +1074,7 @@
                 resultCard.dataset.id = result.id;
                 
                 const isFavorite = favorites.some(fav => fav.url === result.url);
-                const favoriteBtnClass = isFavorite ? 'favorite-btn active' : 'favorite-btn';
+                const favoriteBtnClass = isFavorite ? 'favorite active' : 'favorite';
                 const favoriteBtnIcon = isFavorite ? 'fas fa-heart' : 'far fa-heart';
                 const favoriteBtnTitle = isFavorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti';
                 
